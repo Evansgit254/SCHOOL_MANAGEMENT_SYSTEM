@@ -50,38 +50,28 @@ const data = [
 ];
 
 
-const style = {
-  top: '50%',
-  right: 0,
-  transform: 'translate(0, -50%)',
-  lineHeight: '24px',
-};
-
-
-
 
 const CountChart = () => {
   return (
     <div className='bg-white w-full h-full p-4 rounded-xl'>
         {/* TITLE */}
         <div className='flex justify-between items-center'>
-            <h1>Students</h1>
+            <h1 className='text-lg font-semibold'>Students</h1>
             <Image src='/moreDark.png' alt="" width={20} height={20}/>
         </div>
         {/* CHART */}
-        <div className=''>
-        {/*<ResponsiveContainer width="100%" height="100%">
+        <div className='w-full h-[75%]'>
+        <ResponsiveContainer>
         <RadialBarChart cx="50%" cy="50%" innerRadius="10%" outerRadius="80%" barSize={10} data={data}>
           <RadialBar
-            minAngle={15}
+          
             label={{ position: 'insideStart', fill: '#fff' }}
             background
-            clockWise
             dataKey="uv"
           />
-          <Legend iconSize={10} layout="vertical" verticalAlign="middle" wrapperStyle={style} />
+          <Legend iconSize={10} layout="vertical" verticalAlign="middle" />
         </RadialBarChart>
-      </ResponsiveContainer> */}
+      </ResponsiveContainer>
         </div>
         
         {/* BOTTOM */}
