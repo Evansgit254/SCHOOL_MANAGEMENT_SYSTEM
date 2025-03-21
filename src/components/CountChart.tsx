@@ -2,8 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { RadialBarChart, RadialBar, Legend, ResponsiveContainer } from 'recharts';
-import { count } from 'console';
+import { RadialBarChart, RadialBar, ResponsiveContainer } from 'recharts';
 
 const data = [
   {

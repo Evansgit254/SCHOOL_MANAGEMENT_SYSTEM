@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link';
 import { role } from '../lib/data';
+import Image from 'next/image';
 
 const menuItems = [
   {
@@ -127,7 +128,7 @@ const Menu = () => {
             if (item.visible.includes(role)) {
               return (
             <Link href={item.href} key={item.label} className='flex items-center justify-center lg:justify-start gap-4 md:px-2 text-gray-500 py-2 rounde-md hover:bg-lamaSkyLight'>
-              <img  src={item.icon} alt={item.label} width={20} height={20} />
+              <Image  src={item.icon} alt={item.label} width={20} height={20} />
               <span>{item.label}</span>
             </Link>
               );
