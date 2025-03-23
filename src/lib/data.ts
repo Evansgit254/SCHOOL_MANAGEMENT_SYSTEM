@@ -916,113 +916,70 @@ export const announcementsData = [
 ];
 
 // YOU SHOULD CHANGE THE DATES OF THE EVENTS TO THE CURRENT DATE TO SEE THE EVENTS ON THE CALENDAR
+const today = new Date();
+const currentYear = today.getFullYear();
+const currentMonth = today.getMonth();
+const currentDate = today.getDate();
+
 export const calendarEvents = [
   {
     title: "Math",
     allDay: false,
-    start: new Date(2025, 2, 12, 8, 0),  // March 12th, 2025, 8:00 AM
-    end: new Date(2025, 2, 12, 8, 45),   // March 12th, 2025, 8:45 AM
+    start: new Date(currentYear, currentMonth, currentDate, 8, 0),
+    end: new Date(currentYear, currentMonth, currentDate, 8, 45),
   },
   {
     title: "English",
     allDay: false,
-    start: new Date(2025, 2, 12, 9, 0),  // March 12th, 2025, 9:00 AM
-    end: new Date(2025, 2, 12, 9, 45),   // March 12th, 2025, 9:45 AM
+    start: new Date(currentYear, currentMonth, currentDate, 9, 0),
+    end: new Date(currentYear, currentMonth, currentDate, 9, 45),
   },
   {
     title: "Biology",
     allDay: false,
-    start: new Date(2025, 2, 12, 10, 0),  // March 12th, 2025, 10:00 AM
-    end: new Date(2025, 2, 12, 10, 45),   // March 12th, 2025, 10:45 AM
+    start: new Date(currentYear, currentMonth, currentDate, 10, 0),
+    end: new Date(currentYear, currentMonth, currentDate, 10, 45),
   },
   {
     title: "Physics",
     allDay: false,
-    start: new Date(2025, 2, 12, 11, 0),  // March 12th, 2025, 11:00 AM
-    end: new Date(2025, 2, 12, 11, 45),   // March 12th, 2025, 11:45 AM
+    start: new Date(currentYear, currentMonth, currentDate, 11, 0),
+    end: new Date(currentYear, currentMonth, currentDate, 11, 45),
   },
   {
     title: "Chemistry",
     allDay: false,
-    start: new Date(2025, 2, 12, 13, 0),  // March 12th, 2025, 1:00 PM
-    end: new Date(2025, 2, 12, 13, 45),   // March 12th, 2025, 1:45 PM
+    start: new Date(currentYear, currentMonth, currentDate, 13, 0),
+    end: new Date(currentYear, currentMonth, currentDate, 13, 45),
   },
   {
     title: "History",
     allDay: false,
-    start: new Date(2025, 2, 12, 14, 0),  // March 12th, 2025, 2:00 PM
-    end: new Date(2025, 2, 12, 14, 45),   // March 12th, 2025, 2:45 PM
+    start: new Date(currentYear, currentMonth, currentDate, 14, 0),
+    end: new Date(currentYear, currentMonth, currentDate, 14, 45),
   },
   {
     title: "English",
     allDay: false,
-    start: new Date(2025, 2, 13, 9, 0),   // March 13th, 2025, 9:00 AM
-    end: new Date(2025, 2, 13, 9, 45),    // March 13th, 2025, 9:45 AM
+    start: new Date(currentYear, currentMonth, currentDate + 1, 9, 0),
+    end: new Date(currentYear, currentMonth, currentDate + 1, 9, 45),
   },
   {
     title: "Biology",
     allDay: false,
-    start: new Date(2025, 2, 13, 10, 0),  // March 13th, 2025, 10:00 AM
-    end: new Date(2025, 2, 13, 10, 45),   // March 13th, 2025, 10:45 AM
+    start: new Date(currentYear, currentMonth, currentDate + 1, 10, 0),
+    end: new Date(currentYear, currentMonth, currentDate + 1, 10, 45),
   },
   {
     title: "Physics",
     allDay: false,
-    start: new Date(2025, 2, 13, 11, 0),  // March 13th, 2025, 11:00 AM
-    end: new Date(2025, 2, 13, 11, 45),   // March 13th, 2025, 11:45 AM
+    start: new Date(currentYear, currentMonth, currentDate + 1, 11, 0),
+    end: new Date(currentYear, currentMonth, currentDate + 1, 11, 45),
   },
   {
     title: "History",
     allDay: false,
-    start: new Date(2025, 2, 13, 14, 0),  // March 13th, 2025, 2:00 PM
-    end: new Date(2025, 2, 13, 14, 45),   // March 13th, 2025, 2:45 PM
-  },
-  {
-    title: "Math",
-    allDay: false,
-    start: new Date(2025, 2, 14, 8, 0),   // March 14th, 2025, 8:00 AM
-    end: new Date(2025, 2, 14, 8, 45),    // March 14th, 2025, 8:45 AM
-  },
-  {
-    title: "Biology",
-    allDay: false,
-    start: new Date(2025, 2, 14, 10, 0),  // March 14th, 2025, 10:00 AM
-    end: new Date(2025, 2, 14, 10, 45),   // March 14th, 2025, 10:45 AM
-  },
-  {
-    title: "Chemistry",
-    allDay: false,
-    start: new Date(2025, 2, 14, 13, 0),  // March 14th, 2025, 1:00 PM
-    end: new Date(2025, 2, 14, 13, 45),   // March 14th, 2025, 1:45 PM
-  },
-  {
-    title: "History",
-    allDay: false,
-    start: new Date(2025, 2, 14, 14, 0),  // March 14th, 2025, 2:00 PM
-    end: new Date(2025, 2, 14, 14, 45),   // March 14th, 2025, 2:45 PM
-  },
-  {
-    title: "English",
-    allDay: false,
-    start: new Date(2025, 2, 15, 9, 0),   // March 15th, 2025, 9:00 AM
-    end: new Date(2025, 2, 15, 9, 45),    // March 15th, 2025, 9:45 AM
-  },
-  {
-    title: "Biology",
-    allDay: false,
-    start: new Date(2025, 2, 15, 10, 0),  // March 15th, 2025, 10:00 AM
-    end: new Date(2025, 2, 15, 10, 45),   // March 15th, 2025, 10:45 AM
-  },
-  {
-    title: "Physics",
-    allDay: false,
-    start: new Date(2025, 2, 15, 11, 0),  // March 15th, 2025, 11:00 AM
-    end: new Date(2025, 2, 15, 11, 45),   // March 15th, 2025, 11:45 AM
-  },
-  {
-    title: "History",
-    allDay: false,
-    start: new Date(2025, 2, 15, 14, 0),  // March 15th, 2025, 2:00 PM
-    end: new Date(2025, 2, 15, 14, 45),   // March 15th, 2025, 2:45 PM
+    start: new Date(currentYear, currentMonth, currentDate + 1, 14, 0),
+    end: new Date(currentYear, currentMonth, currentDate + 1, 14, 45),
   },
 ];
