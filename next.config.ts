@@ -7,7 +7,8 @@ const nextConfig: NextConfig = {
     remotePatterns:[
       {hostname:"images.pexels.com"}
     ],
-  }
+  },
+  reactStrictMode: true
 };
 
 export default nextConfig;
