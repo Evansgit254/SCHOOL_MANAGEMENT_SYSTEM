@@ -7,21 +7,43 @@ const matchers = Object.keys(routeAccessMap).map((route) => ({
   allowedRoles: routeAccessMap[route],
 }));
 
-console.log(matchers);
+const publicPaths = ["/sign-in", "/sign-up", "/"];
 
 export default clerkMiddleware(async (auth, req) => {
-  // if (isProtectedRoute(req)) auth().protect()
+  // Allow public routes
+  if (publicPaths.some(path => req.nextUrl.pathname === path)) {
+    return NextResponse.next();
+  }
 
   const authObject = await auth();
-  const sessionClaims = authObject.sessionClaims;
+  
+  // If no user is signed in, redirect to sign-in
+  if (!authObject.userId) {
+    return NextResponse.redirect(new URL('/sign-in', req.url));
+  }
 
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  // Type assertion for metadata
+  interface UserMetadata {
+    role?: string;
+  }
+  
+  const metadata = authObject.sessionClaims?.metadata as UserMetadata | undefined;
+  const role = metadata?.role;
 
+  // If no role is assigned, redirect to sign-in
+  if (!role) {
+    return NextResponse.redirect(new URL('/sign-in', req.url));
+  }
+
+  // Check role-based access
   for (const { matcher, allowedRoles } of matchers) {
-    if (matcher(req) && !allowedRoles.includes(role!)) {
-      return NextResponse.redirect(new URL(`/${role}`, req.url));
+    if (matcher(req) && !allowedRoles.includes(role)) {
+      // Redirect to their role-specific dashboard
+      return NextResponse.redirect(new URL(`/dashboard/${role}`, req.url));
     }
   }
+
+  return NextResponse.next();
 });
 
 export const config = {

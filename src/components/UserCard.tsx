@@ -1,7 +1,21 @@
 import React from 'react'
 import Image from 'next/image'
+import prisma from '@/lib/prisma'
 
-const UserCard = ({type}:{type:string}) => {
+const UserCard = async ({type}:{type:"admin" | "teacher" | "student" | "parent"}) => {
+
+  const modelMap: Record<typeof type, any> = {
+    admin: prisma.admin,
+    teacher: prisma.teacher,
+    student: prisma.student,
+    parent: prisma.parent
+  };
+
+
+
+  const data = await modelMap[type].count()
+  console.log(data)
+
   return (
     <div className='rounded-2xl odd:bg-lamaPurple even:bg-lamaYellow p-4 flex-1 min-w-[50px]'>
       <div className='flex justify-between items-center'>
