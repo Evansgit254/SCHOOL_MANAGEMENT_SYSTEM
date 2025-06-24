@@ -69,6 +69,7 @@ async function main() {
         sex: i % 2 === 0 ? UserSex.MALE : UserSex.FEMALE,
         subjects: { connect: [{ id: (i % 10) + 1 }] }, 
         classes: { connect: [{ id: (i % 6) + 1 }] }, 
+        birthday: new Date(new Date().setFullYear(new Date().getFullYear() - 30)),
       },
     });
   }
@@ -123,6 +124,7 @@ async function main() {
         parentId: `parentId${Math.ceil(i / 2) % 25 || 25}`, 
         gradeId: (i % 6) + 1, 
         classId: (i % 6) + 1, 
+        birthday: new Date(new Date().setFullYear(new Date().getFullYear() - 10)),
       },
     });
   }
@@ -162,7 +164,7 @@ async function main() {
     });
   }
 
-  // ATTENDANCE (Check the model name in your schema, it might be 'attedance' instead of 'attendance')
+  // ATTENDANCE
   for (let i = 1; i <= 10; i++) {
     await prisma.attendance.create({
       data: {

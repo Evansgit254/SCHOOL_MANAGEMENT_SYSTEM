@@ -4,7 +4,7 @@ import Image from "next/image";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import Link from "next/link";
-import FormModal from "@/components/FormModal";
+import FormContainer from "@/components/FormContainer";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
@@ -73,8 +73,8 @@ const RenderRow = (item: ClassList, role?: UserRole) => (
     {role === "admin" && (
       <td>
         <div className="flex item-center gap-2">
-          <FormModal table="class" type="update" data={item} />
-          <FormModal table="class" type="delete" id={item.id} />
+          <FormContainer table="class" type="update" data={item} />
+          <FormContainer table="class" type="delete" id={item.id} />
         </div>
       </td>
     )}
@@ -154,7 +154,7 @@ const ClassListPage = async ({
         <div className="bg-white p-4 rounded-lg flex-1 m-4 mt-0">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-lg semi-bold">All Classes</h1>
-            {role === "admin" && <FormModal table="class" type="create" />}
+            {role === "admin" && <FormContainer table="class" type="create" />}
           </div>
           <div className="flex justify-center items-center h-40">
             <p className="text-gray-500">No classes found</p>
@@ -173,7 +173,7 @@ const ClassListPage = async ({
           <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
             <TableSearch />
             <div className="flex items-center gap-4 self-end">
-              {role === "admin" && <FormModal table="class" type="create" />}
+              {role === "admin" && <FormContainer table="class" type="create" />}
             </div>
           </div>
         </div>

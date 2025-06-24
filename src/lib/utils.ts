@@ -23,14 +23,11 @@ const currentWorkWeek = () => {
   endOfWeek.setDate(startOfWeek.getDate() + 4); // Set end of week to Friday
   endOfWeek.setHours(23, 59, 59, 999); // Set time to end of day
 
-  return {
-    startOfWeek,
-    endOfWeek
-  };
+  return startOfWeek
 };
 
 export const adjustSccheduleToCurrentWeek = (lessons: Lesson[]): Lesson[] => {
-  const { startOfWeek, endOfWeek } = currentWorkWeek();
+  const startOfWeek = currentWorkWeek();
 
   return lessons.map(lesson => {
     const lessonDayOfWeek = lesson.start.getDay();
