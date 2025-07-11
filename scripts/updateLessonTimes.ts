@@ -21,7 +21,6 @@ async function main() {
         endTime: end,
       },
     });
-    console.log(`Updated lesson ${lessons[i].id} to ${start.toISOString()} - ${end.toISOString()}`);
   }
 }
 

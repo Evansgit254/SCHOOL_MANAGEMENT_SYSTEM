@@ -157,6 +157,9 @@ const EventListPage = async ({
     }
 
     const query = buildEventQuery(role, userId, queryParams);
+    if (role === "teacher") {
+      console.log("[Events] Teacher Query:", JSON.stringify(query, null, 2));
+    }
     const columns = getColumns(role);
 
     const [data, count] = await prisma.$transaction([
@@ -170,6 +173,9 @@ const EventListPage = async ({
       }),
       prisma.event.count({where: query}),
     ]);
+    if (role === "teacher") {
+      console.log(`[Events] Teacher Data Count: ${data.length}`);
+    }
 
     if (!data || data.length === 0) {
       return (

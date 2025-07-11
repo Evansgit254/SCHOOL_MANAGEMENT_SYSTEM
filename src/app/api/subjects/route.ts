@@ -1,39 +1,35 @@
-import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs";
+import { NextRequest, NextResponse } from 'next/server';
+import { createSubject, updateSubject, deleteSubject } from '@/lib/actions.server';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { userId, sessionClaims } = await auth();
-    const metadata = sessionClaims?.metadata as { role?: string } | undefined;
-    const role = metadata?.role;
-
-    if (!userId || !role || role !== "admin") {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    const body = await req.json();
-    const { name, teacherIds } = body;
-
-    if (!name || !teacherIds || !Array.isArray(teacherIds)) {
-      return new NextResponse("Missing required fields", { status: 400 });
-    }
-
-    const subject = await prisma.subject.create({
-      data: {
-        name,
-        teachers: {
-          connect: teacherIds.map((id: string) => ({ id })),
-        },
-      },
-      include: {
-        teachers: true,
-      },
-    });
-
-    return NextResponse.json(subject);
+    const data = await req.json();
+    const result = await createSubject({ success: false, error: false }, data);
+    return NextResponse.json(result);
   } catch (error) {
-    console.error("[SUBJECTS_POST]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error('POST /api/subjects error:', error);
+    return NextResponse.json({ error: 'Server error', details: error?.message || error }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const data = await req.json();
+    const result = await updateSubject({ success: false, error: false }, data);
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('PUT /api/subjects error:', error);
+    return NextResponse.json({ error: 'Server error', details: error?.message || error }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const formData = await req.formData();
+    const result = await deleteSubject({ success: false, error: false }, formData);
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('DELETE /api/subjects error:', error);
+    return NextResponse.json({ error: 'Server error', details: error?.message || error }, { status: 500 });
   }
 } 

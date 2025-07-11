@@ -1,3 +1,5 @@
+// 'use server';
+// WARNING: This is a server component. Do NOT import into client components.
 import React from "react";
 import CountChart from "./CountChart";
 import Image from "next/image";

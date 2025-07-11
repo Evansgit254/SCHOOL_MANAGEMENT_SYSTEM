@@ -1,3 +1,5 @@
+// 'use server';
+// WARNING: This is a server component. Do NOT import into client components.
 import Image from "next/image";
 import AttendanceChart from "./AttendanceChart";
 import prisma from "@/lib/prisma";

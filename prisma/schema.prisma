@@ -33,6 +33,7 @@ model Student {
   attendances Attendance[]
   results     Result[]
   birthday    DateTime
+  classAssignmentRequests ClassAssignmentRequest[]
 }
 
 model Teacher {
@@ -177,6 +178,14 @@ model Announcement {
 
   classId Int?
   class   Class? @relation(fields: [classId], references: [id])
+}
+
+model ClassAssignmentRequest {
+  id        Int      @id @default(autoincrement())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  status    String   @default("pending") // pending, approved, rejected
+  createdAt DateTime @default(now())
 }
 
 enum UserSex {

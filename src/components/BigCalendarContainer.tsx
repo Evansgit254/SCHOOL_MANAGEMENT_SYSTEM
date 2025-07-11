@@ -1,3 +1,5 @@
+// 'use server';
+// WARNING: This is a server component. Do NOT import into client components.
 import React from 'react'
 import prisma from '@/lib/prisma'
 import BigCalendar from './BigCalendar';
@@ -41,6 +43,11 @@ const BigCalendarContainer = async ({ type, id }: BigCalendarContainerProps) => 
     return (
       <div className="w-full h-full">
         <BigCalendar data={schedule} />
+        {data.length === 0 && (
+          <div className="flex items-center justify-center h-40 text-gray-500">
+            No lessons scheduled yet.
+          </div>
+        )}
       </div>
     );
   } catch (error) {

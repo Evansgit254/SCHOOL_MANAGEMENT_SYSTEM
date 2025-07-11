@@ -4,9 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import { subjectSchema, SubjectSchema } from "@/lib/formValidationSchemas";
-import { createSubject, updateSubject } from "@/lib/actions";
-import { useFormState } from "react-dom";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
@@ -25,39 +23,41 @@ const SubjectForm = ({
     register,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<SubjectSchema>({
     resolver: zodResolver(subjectSchema),
   });
 
-  // AFTER REACT 19 IT'LL BE USEACTIONSTATE
-
-  const [state, formAction] = useFormState(
-    type === "create" ? createSubject : updateSubject,
-    {
-      success: false,
-      error: false,
-    }
-  );
-
-  const onSubmit = handleSubmit((data) => {
-    console.log(data);
-    formAction(data);
-  });
-
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    if (state.success) {
-      toast(`Subject has been ${type === "create" ? "created" : "updated"}!`);
-      setOpen(false);
-      router.refresh();
-    }
-  }, [state, router, type, setOpen]);
-
   const { teachers } = relatedData;
 
+  const onSubmit = async (formData: SubjectSchema) => {
+    setLoading(true);
+    try {
+      const method = type === "create" ? "POST" : "PUT";
+      const res = await fetch("/api/subjects", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast(`Subject has been ${type === "create" ? "created" : "updated"}!`);
+        setOpen(false);
+        router.refresh();
+      } else {
+        toast.error("Something went wrong!");
+      }
+    } catch (e) {
+      toast.error("Something went wrong!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+    <form className="flex flex-col gap-8" onSubmit={handleSubmit(onSubmit)}>
       <h1 className="text-xl font-semibold">
         {type === "create" ? "Create a new subject" : "Update the subject"}
       </h1>
@@ -103,11 +103,14 @@ const SubjectForm = ({
           )}
         </div>
       </div>
-      {state.error && (
-        <span className="text-red-500">Something went wrong!</span>
-      )}
-      <button className="bg-blue-400 text-white p-2 rounded-md">
-        {type === "create" ? "Create" : "Update"}
+      <button className="bg-blue-400 text-white p-2 rounded-md" disabled={loading}>
+        {loading
+          ? type === "create"
+            ? "Creating..."
+            : "Updating..."
+          : type === "create"
+          ? "Create"
+          : "Update"}
       </button>
     </form>
   );

@@ -9,6 +9,7 @@ import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Prisma, Student } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { auth, currentUser } from '@clerk/nextjs/server';
+import FormContainer from "@/components/FormContainer";
 
 // Make the page dynamic
 export const dynamic = "force-dynamic";
@@ -98,7 +99,7 @@ const RenderRow = (item: StudentList, role?: UserRole) => (
               <Image src="/view.png" alt="" width={16} height={16} />
             </button>
           </Link>
-          <FormModal table="student" type="delete" id={item.id} />
+          <FormContainer table="student" type="delete" id={item.id} />
         </div>
       </td>
     )}
@@ -222,7 +223,7 @@ const StudentListPage = async ({
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-lg semi-bold">All Students</h1>
             {role === "admin" && (
-              <FormModal table="student" type="create" />
+              <FormContainer table="student" type="create" />
             )}
           </div>
           <div className="flex justify-center items-center h-40">

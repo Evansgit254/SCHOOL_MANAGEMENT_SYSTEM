@@ -191,6 +191,9 @@ const ResultListPage = async ({
     }
 
     const query = buildResultQuery(role, userId, metadata, queryParams);
+    if (role === "teacher") {
+      console.log("[Results] Teacher Query:", JSON.stringify(query, null, 2));
+    }
     const columns = getColumns(role);
 
     const [dataRes, count] = await prisma.$transaction([
@@ -226,6 +229,9 @@ const ResultListPage = async ({
       }),
       prisma.result.count({ where: query }),
     ]);
+    if (role === "teacher") {
+      console.log(`[Results] Teacher Data Count: ${dataRes.length}`);
+    }
 
     const data = dataRes.map(item => {
       const assessment = item.assignment || item.exam;

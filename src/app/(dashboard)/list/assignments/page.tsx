@@ -194,7 +194,9 @@ const AssignmentListPage = async ({
         : columns;
 
     const query = buildAssignmentQuery(role, userId, metadata, queryParams);
-
+    if (role === "teacher") {
+      console.log("[Assignments] Teacher Query:", JSON.stringify(query, null, 2));
+    }
     const [data, count] = await prisma.$transaction([
       prisma.assignment.findMany({
         where: query,
@@ -212,6 +214,9 @@ const AssignmentListPage = async ({
       }),
       prisma.assignment.count({ where: query }),
     ]);
+    if (role === "teacher") {
+      console.log(`[Assignments] Teacher Data Count: ${data.length}`);
+    }
 
     if (!data || data.length === 0) {
       return (

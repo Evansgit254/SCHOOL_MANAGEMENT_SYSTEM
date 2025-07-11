@@ -74,6 +74,48 @@ async function main() {
     });
   }
 
+  // SPECIAL: Seed a teacher with the actual Clerk user ID
+  const clerkTeacherId = "user_2xifHDbalU3rU22ulgbOf7gN3m";
+  await prisma.teacher.create({
+    data: {
+      id: clerkTeacherId,
+      username: "clerkteacher",
+      name: "Clerk",
+      surname: "Teacher",
+      email: "clerkteacher@example.com",
+      phone: "123-456-7890",
+      address: "Clerk Address",
+      bloodType: "A+",
+      sex: "MALE",
+      birthday: new Date(new Date().setFullYear(new Date().getFullYear() - 30)),
+      subjects: { connect: [{ id: 1 }] },
+      classes: { connect: [{ id: 1 }] },
+    },
+  });
+
+  // Create a lesson for this teacher
+  const clerkLesson = await prisma.lesson.create({
+    data: {
+      name: "Clerk's Math Lesson",
+      day: "MONDAY",
+      startTime: new Date(new Date().setHours(9, 0, 0, 0)),
+      endTime: new Date(new Date().setHours(10, 0, 0, 0)),
+      subjectId: 1,
+      classId: 1,
+      teacherId: clerkTeacherId,
+    },
+  });
+
+  // Create an assignment for this lesson
+  await prisma.assignment.create({
+    data: {
+      title: "Clerk's Assignment",
+      startDate: new Date(),
+      dueDate: new Date(new Date().setDate(new Date().getDate() + 7)),
+      lessonId: clerkLesson.id,
+    },
+  });
+
   // LESSON
   for (let i = 1; i <= 30; i++) {
     await prisma.lesson.create({
@@ -201,7 +243,95 @@ async function main() {
     });
   }
 
-  console.log("Seeding completed successfully.");
+  // Add parents for the students
+  for (let i = 1; i <= 5; i++) {
+    await prisma.parent.create({
+      data: {
+        id: `clerkparent${i}`,
+        username: `clerkparent${i}`,
+        name: `ClerkParent${i}`,
+        surname: `ParentSurname${i}`,
+        email: `clerkparent${i}@example.com`,
+        phone: `555-000-CLERK${i}`,
+        address: `ParentAddress${i}`,
+      },
+    });
+  }
+
+  // Add students to the teacher's class (classId: 1)
+  for (let i = 1; i <= 5; i++) {
+    await prisma.student.create({
+      data: {
+        id: `clerkstudent${i}`,
+        username: `clerkstudent${i}`,
+        name: `ClerkStudent${i}`,
+        surname: `StudentSurname${i}`,
+        email: `clerkstudent${i}@example.com`,
+        phone: `555-000-CLERK-STU${i}`,
+        address: `Address${i}`,
+        bloodType: "O-",
+        sex: i % 2 === 0 ? "MALE" : "FEMALE",
+        parentId: `clerkparent${i}`,
+        gradeId: 1,
+        classId: 1,
+        birthday: new Date(new Date().setFullYear(new Date().getFullYear() - 10)),
+      },
+    });
+  }
+
+  // Add results for the students (examId: 1)
+  for (let i = 1; i <= 5; i++) {
+    await prisma.result.create({
+      data: {
+        score: 80 + i,
+        studentId: `clerkstudent${i}`,
+        examId: 1, // Use the exam you created for the teacher's lesson
+      },
+    });
+  }
+
+  // Add an event for the class
+  await prisma.event.create({
+    data: {
+      title: "Clerk's Class Event",
+      description: "Special event for the teacher's class",
+      startTime: new Date(),
+      endTime: new Date(new Date().setHours(new Date().getHours() + 2)),
+      classId: 1,
+    },
+  });
+
+  // Add a specific Clerk parent and student for login mapping/testing
+  const clerkParentId = 'user_clerkparent_test';
+  const clerkStudentId = 'user_clerkstudent_test';
+  await prisma.parent.create({
+    data: {
+      id: clerkParentId,
+      username: clerkParentId,
+      name: 'ClerkTestParent',
+      surname: 'Parent',
+      email: 'clerkparent_test@example.com',
+      phone: '555-CLERK-PARENT',
+      address: 'Clerk Parent Address',
+    },
+  });
+  await prisma.student.create({
+    data: {
+      id: clerkStudentId,
+      username: clerkStudentId,
+      name: 'ClerkTestStudent',
+      surname: 'Student',
+      email: 'clerkstudent_test@example.com',
+      phone: '555-CLERK-STUDENT',
+      address: 'Clerk Student Address',
+      bloodType: 'O+',
+      sex: 'MALE',
+      parentId: clerkParentId,
+      gradeId: 1,
+      classId: 1,
+      birthday: new Date(new Date().setFullYear(new Date().getFullYear() - 10)),
+    },
+  });
 }
 
 main()

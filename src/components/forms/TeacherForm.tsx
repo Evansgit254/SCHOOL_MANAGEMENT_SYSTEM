@@ -6,8 +6,6 @@ import InputField from "../InputField";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { teacherSchema, TeacherSchema } from "@/lib/formValidationSchemas";
-import { useFormState } from "react-dom";
-import { createTeacher, updateTeacher } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { CldUploadWidget } from "next-cloudinary";
@@ -32,34 +30,36 @@ const TeacherForm = ({
   });
 
   const [img, setImg] = useState<any>();
-
-  const [state, formAction] = useFormState(
-    type === "create" ? createTeacher : updateTeacher,
-    {
-      success: false,
-      error: false,
-    }
-  );
-
-  const onSubmit = handleSubmit((data) => {
-    console.log(data);
-    formAction({ ...data, img: img?.secure_url });
-  });
-
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    if (state.success) {
-      toast(`Teacher has been ${type === "create" ? "created" : "updated"}!`);
-      setOpen(false);
-      router.refresh();
-    }
-  }, [state, router, type, setOpen]);
-
   const { subjects } = relatedData;
 
+  const onSubmit = async (formData: TeacherSchema) => {
+    setLoading(true);
+    try {
+      const method = type === "create" ? "POST" : "PUT";
+      const res = await fetch("/api/teachers", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, img: img?.secure_url }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast(`Teacher has been ${type === "create" ? "created" : "updated"}!`);
+        setOpen(false);
+        router.refresh();
+      } else {
+        toast.error("Something went wrong!");
+      }
+    } catch (e) {
+      toast.error("Something went wrong!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
+    <form className="flex flex-col gap-8" onSubmit={handleSubmit(onSubmit)}>
       <h1 className="text-xl font-semibold">
         {type === "create" ? "Create a new teacher" : "Update the teacher"}
       </h1>
@@ -132,7 +132,7 @@ const TeacherForm = ({
         <InputField
           label="Birthday"
           name="birthday"
-          defaultValue={data?.birthday.toISOString().split("T")[0]}
+          defaultValue={data?.birthday?.toISOString?.().split("T")[0] || data?.birthday}
           register={register}
           error={errors.birthday}
           type="date"
@@ -203,11 +203,14 @@ const TeacherForm = ({
           }}
         </CldUploadWidget>
       </div>
-      {state.error && (
-        <span className="text-red-500">Something went wrong!</span>
-      )}
-      <button className="bg-blue-400 text-white p-2 rounded-md">
-        {type === "create" ? "Create" : "Update"}
+      <button className="bg-blue-400 text-white p-2 rounded-md" disabled={loading}>
+        {loading
+          ? type === "create"
+            ? "Creating..."
+            : "Updating..."
+          : type === "create"
+          ? "Create"
+          : "Update"}
       </button>
     </form>
   );

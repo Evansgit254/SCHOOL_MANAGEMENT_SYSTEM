@@ -8,7 +8,7 @@ import Link from 'next/link';
 import FormModal from '@/components/FormModal';
 import prisma from "@/lib/prisma";
 import { Class, Lesson, Prisma, Subject, Teacher } from "@prisma/client";
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 // Make the page dynamic
 export const dynamic = "force-dynamic";
@@ -161,6 +161,9 @@ const LessonListPage = async ({
     }
 
     const query = buildLessonQuery(role, userId, metadata, queryParams);
+    if (role === "teacher") {
+      console.log("[Lessons] Teacher Query:", JSON.stringify(query, null, 2));
+    }
     const columns = getColumns(role);
 
     const [data, count] = await prisma.$transaction([
@@ -176,6 +179,9 @@ const LessonListPage = async ({
       }),
       prisma.lesson.count({ where: query }),
     ]);
+    if (role === "teacher") {
+      console.log(`[Lessons] Teacher Data Count: ${data.length}`);
+    }
 
     if (!data || data.length === 0) {
       return (

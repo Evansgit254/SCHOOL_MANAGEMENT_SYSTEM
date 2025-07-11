@@ -170,6 +170,9 @@ const ParentListPage = async ({
     }
 
     const query = buildParentQuery(role, userId, metadata, queryParams);
+    if (role === "teacher") {
+      console.log("[Parents] Teacher Query:", JSON.stringify(query, null, 2));
+    }
     const columns = getColumns(role);
 
     const [data, count] = await prisma.$transaction([
@@ -188,6 +191,9 @@ const ParentListPage = async ({
       }),
       prisma.parent.count({ where: query }),
     ]);
+    if (role === "teacher") {
+      console.log(`[Parents] Teacher Data Count: ${data.length}`);
+    }
 
     if (!data || data.length === 0) {
       return (

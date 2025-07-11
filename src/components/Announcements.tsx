@@ -1,3 +1,5 @@
+// 'use server';
+// WARNING: This is a server component. Do NOT import into client components.
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
