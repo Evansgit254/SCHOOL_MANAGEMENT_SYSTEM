@@ -69,6 +69,21 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
         });
         relatedData = { lessons: examLessons };
         break;
+      case "assignment": {
+        let lessons = [];
+        if (role === "admin") {
+          lessons = await prisma.lesson.findMany({
+            select: { id: true, name: true },
+          });
+        } else if (role === "teacher") {
+          lessons = await prisma.lesson.findMany({
+            where: { teacherId: currentUserId! },
+            select: { id: true, name: true },
+          });
+        }
+        relatedData = { lessons };
+        break;
+      }
 
       default:
         break;

@@ -188,6 +188,15 @@ model ClassAssignmentRequest {
   createdAt DateTime @default(now())
 }
 
+model Message {
+  id         Int      @id @default(autoincrement())
+  senderId   String
+  receiverId String
+  content    String
+  timestamp  DateTime @default(now())
+  read       Boolean  @default(false)
+}
+
 enum UserSex {
   MALE
   FEMALE
