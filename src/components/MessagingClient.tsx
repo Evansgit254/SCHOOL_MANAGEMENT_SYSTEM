@@ -5,8 +5,6 @@ import Image from "next/image";
 
 interface MessagingClientProps {
   userId: string;
-  partners: string[];
-  userRole: string;
 }
 
 interface Message {
@@ -34,7 +32,7 @@ interface Conversation {
   unreadCount: number;
 }
 
-export default function MessagingClient({ userId, partners, userRole }: MessagingClientProps) {
+export default function MessagingClient({ userId }: MessagingClientProps) {
   const [selectedPartner, setSelectedPartner] = useState<UserInfo | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -132,17 +130,21 @@ export default function MessagingClient({ userId, partners, userRole }: Messagin
         // Mark all received messages as read
         const unread = (data.messages || []).filter((msg: Message) => msg.receiverId === userId && !msg.read);
         for (const msg of unread) {
-          await fetch(`/api/messages/${msg.id}/read`, { method: "PATCH" });
+          fetch(`/api/messages/${msg.id}/read`, { method: "PATCH" });
         }
       }
     };
     fetchAndMarkRead();
     // Poll for new messages every 5 seconds
-    pollingRef.current && clearInterval(pollingRef.current);
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+    }
     pollingRef.current = setInterval(fetchAndMarkRead, 5000);
     return () => {
       isMounted = false;
-      pollingRef.current && clearInterval(pollingRef.current);
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
     };
   }, [selectedPartner, userId]);
 
@@ -216,8 +218,8 @@ export default function MessagingClient({ userId, partners, userRole }: Messagin
         const errorData = await res.json();
         toast.error(errorData.error || "Failed to send message");
       }
-    } catch (err) {
-      toast.error("Failed to send message (exception)");
+    } catch (error) {
+      toast.error(`Failed to send message: ${(error as Error).message}`);
     }
     setLoading(false);
   };

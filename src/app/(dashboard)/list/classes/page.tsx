@@ -1,9 +1,7 @@
 import TableSearch from "@/components/TableSearch";
 import React from "react";
-import Image from "next/image";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
-import Link from "next/link";
 import FormContainer from "@/components/FormContainer";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import prisma from "@/lib/prisma";
@@ -22,7 +20,7 @@ interface SessionMetadata {
   classId?: number;
 }
 
-type ClassList = Class & { supervisor: Teacher };
+type ClassList = Class & { supervisor: Teacher | null };
 
 const baseColumns = [
   {
@@ -68,7 +66,7 @@ const RenderRow = (item: ClassList, role?: UserRole) => (
     <td className="hidden md:table-cell">{item.capacity}</td>
     <td className="hidden md:table-cell">{item.name[0]}</td>
     <td className="hidden md:table-cell">
-      {item.supervisor.name + " " + item.supervisor.surname}
+      {item.supervisor?.name + " " + item.supervisor?.surname}
     </td>
     {role === "admin" && (
       <td>
@@ -107,10 +105,11 @@ const buildClassQuery = (
 const ClassListPage = async ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined };
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) => {
   try {
-    const { page, ...queryParams } = searchParams;
+    const params = await searchParams;
+    const { page, ...queryParams } = params;
     const p = page ? parseInt(page) : 1;
 
     // Get user role and current user

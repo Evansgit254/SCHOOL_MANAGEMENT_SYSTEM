@@ -1,7 +1,5 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
 import {
   ClassSchema,
   ExamSchema,
@@ -11,7 +9,6 @@ import {
 } from "./formValidationSchemas";
 import prisma from "./prisma";
 import { clerkClient } from "@clerk/nextjs/server";
-import type { User } from "@clerk/backend";
 
 type CurrentState = { success: boolean; error: boolean };
 
@@ -30,7 +27,7 @@ export const createSubject = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -52,7 +49,7 @@ export const updateSubject = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -69,7 +66,7 @@ export const deleteSubject = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -84,7 +81,7 @@ export const createClass = async (
       data,
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -101,7 +98,7 @@ export const updateClass = async (
       data,
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -118,7 +115,7 @@ export const deleteClass = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -136,7 +133,7 @@ export const createTeacher = async (
       firstName: data.name,
       lastName: data.surname,
       publicMetadata:{role:"teacher"}
-    }) as User;
+    });
 
     await prisma.teacher.create({
       data: {
@@ -159,7 +156,7 @@ export const createTeacher = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -173,12 +170,12 @@ export const updateTeacher = async (
   }
   try {
     const client = await clerkClient();
-    const user = await client.users.updateUser(data.id, {
+    await client.users.updateUser(data.id, {
       username: data.username,
       ...(data.password !== "" && { password: data.password }),
       firstName: data.name,
       lastName: data.surname,
-    }) as User;
+    });
 
     await prisma.teacher.update({
       where: {
@@ -204,7 +201,7 @@ export const updateTeacher = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -224,7 +221,7 @@ export const deleteTeacher = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -251,7 +248,7 @@ export const createStudent = async (
       firstName: data.name,
       lastName: data.surname,
       publicMetadata:{role:"student"}
-    }) as User;
+    });
 
     await prisma.student.create({
       data: {
@@ -272,7 +269,7 @@ export const createStudent = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -286,12 +283,12 @@ export const updateStudent = async (
   }
   try {
     const client = await clerkClient();
-    const user = await client.users.updateUser(data.id, {
+    await client.users.updateUser(data.id, {
       username: data.username,
       ...(data.password !== "" && { password: data.password }),
       firstName: data.name,
       lastName: data.surname,
-    }) as User;
+    });
 
     await prisma.student.update({
       where: {
@@ -315,7 +312,7 @@ export const updateStudent = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -335,7 +332,7 @@ export const deleteStudent = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -355,7 +352,7 @@ export const createExam = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -377,7 +374,7 @@ export const updateExam = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 };
@@ -394,7 +391,7 @@ export const deleteExam = async (
       },
     });
     return { success: true, error: false };
-  } catch (err) {
+  } catch {
     return { success: false, error: true };
   }
 }; 

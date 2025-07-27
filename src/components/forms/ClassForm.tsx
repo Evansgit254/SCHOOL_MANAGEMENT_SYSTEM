@@ -7,6 +7,8 @@ import { classSchema, ClassSchema } from "@/lib/formValidationSchemas";
 import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { RelatedData } from "../FormContainer";
+import { Teacher, Grade } from "@prisma/client";
 
 const ClassForm = ({
   type,
@@ -15,9 +17,9 @@ const ClassForm = ({
   relatedData,
 }: {
   type: "create" | "update";
-  data?: any;
+  data?: ClassSchema;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  relatedData?: any;
+  relatedData?: RelatedData;
 }) => {
   const {
     register,
@@ -29,7 +31,7 @@ const ClassForm = ({
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { teachers, grades } = relatedData;
+  const { teachers, grades } = relatedData || {};
 
   const onSubmit = async (formData: ClassSchema) => {
     setLoading(true);
@@ -48,8 +50,8 @@ const ClassForm = ({
       } else {
         toast.error("Something went wrong!");
       }
-    } catch (e) {
-      toast.error("Something went wrong!");
+    } catch (error) {
+      toast.error(`Something went wrong: ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }
@@ -64,25 +66,21 @@ const ClassForm = ({
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
           label="Class name"
-          name="name"
           defaultValue={data?.name}
-          register={register}
-          error={errors?.name}
+          {...register("name")}
+          error={errors?.name?.message}
         />
         <InputField
           label="Capacity"
-          name="capacity"
           defaultValue={data?.capacity}
-          register={register}
-          error={errors?.capacity}
+          {...register("capacity", { valueAsNumber: true })}
+          error={errors?.capacity?.message}
         />
         {data && (
           <InputField
-            label="Id"
-            name="id"
             defaultValue={data?.id}
-            register={register}
-            error={errors?.id}
+            {...register("id")}
+            error={errors?.id?.message}
             hidden
           />
         )}
@@ -93,8 +91,8 @@ const ClassForm = ({
             {...register("supervisorId")}
             defaultValue={data?.supervisorId}
           >
-            {teachers.map(
-              (teacher: { id: string; name: string; surname: string }) => (
+            {teachers?.map(
+              (teacher: Teacher) => (
                 <option value={teacher.id} key={teacher.id}>
                   {teacher.name + " " + teacher.surname}
                 </option>
@@ -103,7 +101,7 @@ const ClassForm = ({
           </select>
           {errors.supervisorId?.message && (
             <p className="text-xs text-red-400">
-              {errors.supervisorId.message.toString()}
+              {errors.supervisorId.message}
             </p>
           )}
         </div>
@@ -111,10 +109,10 @@ const ClassForm = ({
           <label className="text-xs text-gray-500">Grade</label>
           <select
             className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("gradeId")}
+            {...register("gradeId", { valueAsNumber: true })}
             defaultValue={data?.gradeId}
           >
-            {grades.map((grade: { id: number; level: number }) => (
+            {grades?.map((grade: Grade) => (
               <option value={grade.id} key={grade.id}>
                 {grade.level}
               </option>
@@ -122,7 +120,7 @@ const ClassForm = ({
           </select>
           {errors.gradeId?.message && (
             <p className="text-xs text-red-400">
-              {errors.gradeId.message.toString()}
+              {errors.gradeId.message}
             </p>
           )}
         </div>

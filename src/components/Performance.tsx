@@ -1,5 +1,5 @@
 "use client";
-import { PieChart, Pie, Sector, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, ResponsiveContainer } from 'recharts';
 import Image from 'next/image';
 
 const data = [

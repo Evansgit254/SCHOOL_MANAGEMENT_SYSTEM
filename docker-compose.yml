@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine # Using a lightweight alpine image
+    container_name: school_management_db
+    restart: always
+    environment:
+      POSTGRES_USER: evans
+      POSTGRES_PASSWORD: Kigogo254
+      POSTGRES_DB: school_db
+    ports:
+      - "5431:5432" # Maps your computer's port 5431 to the container's port 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # This saves your data even if the container is removed
+
+volumes:
+  postgres_data:
+    name: school_management_data

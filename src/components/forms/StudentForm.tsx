@@ -9,6 +9,8 @@ import { studentSchema, StudentSchema } from "@/lib/formValidationSchemas";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { CldUploadWidget } from "next-cloudinary";
+import { RelatedData } from "../FormContainer";
+import { Grade, Class } from "@prisma/client";
 
 const StudentForm = ({
   type,
@@ -17,9 +19,9 @@ const StudentForm = ({
   relatedData,
 }: {
   type: "create" | "update";
-  data?: any;
+  data?: StudentSchema;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  relatedData?: any;
+  relatedData?: RelatedData;
 }) => {
   const {
     register,
@@ -29,10 +31,10 @@ const StudentForm = ({
     resolver: zodResolver(studentSchema),
   });
 
-  const [img, setImg] = useState<any>();
+  const [img, setImg] = useState<{ secure_url: string } | undefined>();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { grades, classes } = relatedData;
+  const { grades, classes } = relatedData || {};
 
   const onSubmit = async (formData: StudentSchema) => {
     setLoading(true);
@@ -51,8 +53,8 @@ const StudentForm = ({
       } else {
         toast.error("Something went wrong!");
       }
-    } catch (e) {
-      toast.error("Something went wrong!");
+    } catch (error) {
+      toast.error(`Something went wrong: ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }
@@ -69,25 +71,22 @@ const StudentForm = ({
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
           label="Username"
-          name="username"
           defaultValue={data?.username}
-          register={register}
-          error={errors?.username}
+          {...register("username")}
+          error={errors?.username?.message}
         />
         <InputField
           label="Email"
-          name="email"
           defaultValue={data?.email}
-          register={register}
-          error={errors?.email}
+          {...register("email")}
+          error={errors?.email?.message}
         />
         <InputField
           label="Password"
-          name="password"
           type="password"
           defaultValue={data?.password}
-          register={register}
-          error={errors?.password}
+          {...register("password")}
+          error={errors?.password?.message}
         />
       </div>
       <span className="text-xs text-gray-400 font-medium">
@@ -96,7 +95,7 @@ const StudentForm = ({
       <CldUploadWidget
         uploadPreset="school"
         onSuccess={(result, { widget }) => {
-          setImg(result.info);
+          setImg((result?.info as { secure_url: string }) || undefined);
           widget.close();
         }}
       >
@@ -115,61 +114,52 @@ const StudentForm = ({
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
           label="First Name"
-          name="name"
           defaultValue={data?.name}
-          register={register}
-          error={errors.name}
+          {...register("name")}
+          error={errors.name?.message}
         />
         <InputField
           label="Last Name"
-          name="surname"
           defaultValue={data?.surname}
-          register={register}
-          error={errors.surname}
+          {...register("surname")}
+          error={errors.surname?.message}
         />
         <InputField
           label="Phone"
-          name="phone"
           defaultValue={data?.phone}
-          register={register}
-          error={errors.phone}
+          {...register("phone")}
+          error={errors.phone?.message}
         />
         <InputField
           label="Address"
-          name="address"
           defaultValue={data?.address}
-          register={register}
-          error={errors.address}
+          {...register("address")}
+          error={errors.address?.message}
         />
         <InputField
           label="Blood Type"
-          name="bloodType"
           defaultValue={data?.bloodType}
-          register={register}
-          error={errors.bloodType}
+          {...register("bloodType")}
+          error={errors.bloodType?.message}
         />
         <InputField
           label="Birthday"
-          name="birthday"
-          defaultValue={data?.birthday?.toISOString?.().split("T")[0] || data?.birthday}
-          register={register}
-          error={errors.birthday}
+          defaultValue={data?.birthday?.toString().split("T")[0]}
+          {...register("birthday")}
+          error={errors.birthday?.message}
           type="date"
         />
         <InputField
           label="Parent Id"
-          name="parentId"
           defaultValue={data?.parentId}
-          register={register}
-          error={errors.parentId}
+          {...register("parentId")}
+          error={errors.parentId?.message}
         />
         {data && (
           <InputField
-            label="Id"
-            name="id"
             defaultValue={data?.id}
-            register={register}
-            error={errors?.id}
+            {...register("id")}
+            error={errors?.id?.message}
             hidden
           />
         )}
@@ -185,7 +175,7 @@ const StudentForm = ({
           </select>
           {errors.sex?.message && (
             <p className="text-xs text-red-400">
-              {errors.sex.message.toString()}
+              {errors.sex.message}
             </p>
           )}
         </div>
@@ -193,10 +183,10 @@ const StudentForm = ({
           <label className="text-xs text-gray-500">Grade</label>
           <select
             className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("gradeId")}
+            {...register("gradeId", { valueAsNumber: true })}
             defaultValue={data?.gradeId}
           >
-            {grades.map((grade: { id: number; level: number }) => (
+            {grades?.map((grade: Grade) => (
               <option value={grade.id} key={grade.id}>
                 {grade.level}
               </option>
@@ -204,7 +194,7 @@ const StudentForm = ({
           </select>
           {errors.gradeId?.message && (
             <p className="text-xs text-red-400">
-              {errors.gradeId.message.toString()}
+              {errors.gradeId.message}
             </p>
           )}
         </div>
@@ -212,10 +202,10 @@ const StudentForm = ({
           <label className="text-xs text-gray-500">Class</label>
           <select
             className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("classId")}
+            {...register("classId", { valueAsNumber: true })}
             defaultValue={data?.classId}
           >
-            {classes.map((cls: { id: number; name: string }) => (
+            {classes?.map((cls: Class) => (
               <option value={cls.id} key={cls.id}>
                 {cls.name}
               </option>
@@ -223,7 +213,7 @@ const StudentForm = ({
           </select>
           {errors.classId?.message && (
             <p className="text-xs text-red-400">
-              {errors.classId.message.toString()}
+              {errors.classId.message}
             </p>
           )}
         </div>

@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     });
     return NextResponse.json({ messages });
   } catch (error) {
-    console.error('GET /api/messages/conversation error:', error);
-    return NextResponse.json({ error: 'Server error', details: error?.message || error }, { status: 500 });
+    console.error('POST /api/messages/conversation error:', error);
+    return NextResponse.json({ error: 'Server error', details: (error as Error)?.message || error }, { status: 500 });
   }
 } 

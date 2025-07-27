@@ -5,19 +5,20 @@ import * as SignIn from '@clerk/elements/sign-in'
 import React, { useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { motion, AnimatePresence } from "framer-motion";
+import Image from 'next/image';
 
 const heroVariants = {
   hidden: { opacity: 0, y: 40 },
   visible: (i = 1) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: 0.15 * i, duration: 0.7, type: 'spring' }
+    transition: { delay: 0.15 * i, duration: 0.7 }
   })
 };
 
 const cardVariants = {
   hidden: { opacity: 0, scale: 0.95 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.7, type: 'spring' } }
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.7 } }
 };
 
 const featureVariants = {
@@ -25,7 +26,7 @@ const featureVariants = {
   visible: (i = 1) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: 0.2 + 0.15 * i, duration: 0.7, type: 'spring' }
+    transition: { delay: 0.2 + 0.15 * i, duration: 0.7 }
   })
 };
 
@@ -41,15 +42,22 @@ export default function LandingPage() {
     <main className="min-h-screen w-full bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex flex-col items-center justify-center overflow-auto">
       {/* Hero Section */}
       <section className="w-full flex flex-col items-center justify-center pt-16 pb-8 px-4">
-        <motion.img
-          src="/logo.png"
-          alt="School Management Logo"
+        {/* === CHANGE 1: Main Logo === */}
+        <motion.div
           className="w-24 h-24 mb-4 drop-shadow-lg"
           variants={heroVariants}
           initial="hidden"
           animate="visible"
           custom={1}
-        />
+        >
+          <Image
+            src="/logo.png"
+            alt="School Management Logo"
+            width={96}
+            height={96}
+            priority // Add priority to preload this important LCP image
+          />
+        </motion.div>
         <motion.h1
           className="text-5xl font-extrabold text-blue-800 text-center drop-shadow-sm"
           variants={heroVariants}
@@ -93,10 +101,11 @@ export default function LandingPage() {
             ) : isSignedIn ? (
               <div className="text-blue-600 font-semibold">Redirecting to your dashboard...</div>
             ) : (
-              <SignIn.Root afterSignInUrl="/api/role-redirect">
+              <SignIn.Root>
                 <SignIn.Step name='start' className='flex flex-col gap-4 w-full'>
                   <h2 className='text-2xl font-bold flex items-center gap-2 justify-center mb-2'>
-                    <img src='/logo.png' alt='' width={28} height={28} />
+                    {/* === CHANGE 2: Sign-in Logo === */}
+                    <Image src='/logo.png' alt='' width={28} height={28} />
                     Welcome Back
                   </h2>
                   <h3 className='text-gray-500 text-center mb-2'>Sign in to your account</h3>
@@ -118,7 +127,7 @@ export default function LandingPage() {
           </motion.div>
         </AnimatePresence>
       </section>
-      {/* Features Section */}
+      {/* Features Section ... (rest of the code is unchanged and correct) ... */}
       <section className="w-full max-w-5xl mx-auto px-4 pb-8">
         <motion.h2
           className="text-3xl font-bold text-gray-800 mb-8 text-center"
@@ -176,8 +185,8 @@ export default function LandingPage() {
         </div>
       </section>
       <footer className="mt-6 text-xs text-gray-400 text-center w-full pb-4">
-        &copy; {new Date().getFullYear()} School Management System. All rights reserved.
+        © {new Date().getFullYear()} School Management System. All rights reserved.
       </footer>
     </main>
   );
-} 
+}

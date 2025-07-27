@@ -1,6 +1,5 @@
 import TableSearch from '@/components/TableSearch'
 import React from 'react'
-import Image from 'next/image'
 import Pagination from '@/components/Pagination'
 import Table from '@/components/Table'
 import { role } from '@/lib/data'
@@ -49,9 +48,10 @@ const RenderRow = (item: SubjectWithTeachers) => (
 const SubjectsListPage = async ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined };
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) => {
-  const { page, ...queryParams } = searchParams;
+      const params = await searchParams;
+    const { page, ...queryParams } = params;
   const p = page ? parseInt(page) : 1;
 
   const query: Prisma.SubjectWhereInput = {};

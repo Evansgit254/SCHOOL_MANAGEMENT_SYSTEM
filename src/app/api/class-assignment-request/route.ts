@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, request });
   } catch (error) {
     console.error('POST /api/class-assignment-request error:', error);
-    return NextResponse.json({ error: 'Server error', details: error?.message || error }, { status: 500 });
+    return NextResponse.json({ error: 'Server error', details: (error as Error)?.message || error }, { status: 500 });
   }
 }
 

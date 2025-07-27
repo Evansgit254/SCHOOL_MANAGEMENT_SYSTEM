@@ -4,11 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { teacherSchema, TeacherSchema } from "@/lib/formValidationSchemas";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { CldUploadWidget } from "next-cloudinary";
+import { RelatedData } from "../FormContainer";
+import { Subject } from "@prisma/client";
 
 const TeacherForm = ({
   type,
@@ -17,9 +19,9 @@ const TeacherForm = ({
   relatedData,
 }: {
   type: "create" | "update";
-  data?: any;
+  data?: TeacherSchema;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  relatedData?: any;
+  relatedData?: RelatedData;
 }) => {
   const {
     register,
@@ -29,10 +31,10 @@ const TeacherForm = ({
     resolver: zodResolver(teacherSchema),
   });
 
-  const [img, setImg] = useState<any>();
+  const [img, setImg] = useState<{ secure_url: string } | undefined>();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { subjects } = relatedData;
+  const { subjects } = relatedData || {};
 
   const onSubmit = async (formData: TeacherSchema) => {
     setLoading(true);
@@ -51,8 +53,8 @@ const TeacherForm = ({
       } else {
         toast.error("Something went wrong!");
       }
-    } catch (e) {
-      toast.error("Something went wrong!");
+    } catch (error) {
+      toast.error(`Something went wrong: ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }
@@ -69,25 +71,22 @@ const TeacherForm = ({
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
           label="Username"
-          name="username"
           defaultValue={data?.username}
-          register={register}
-          error={errors?.username}
+          {...register("username")}
+          error={errors?.username?.message}
         />
         <InputField
           label="Email"
-          name="email"
           defaultValue={data?.email}
-          register={register}
-          error={errors?.email}
+          {...register("email")}
+          error={errors?.email?.message}
         />
         <InputField
           label="Password"
-          name="password"
           type="password"
           defaultValue={data?.password}
-          register={register}
-          error={errors?.password}
+          {...register("password")}
+          error={errors?.password?.message}
         />
       </div>
       <span className="text-xs text-gray-400 font-medium">
@@ -96,54 +95,46 @@ const TeacherForm = ({
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
           label="First Name"
-          name="name"
           defaultValue={data?.name}
-          register={register}
-          error={errors.name}
+          {...register("name")}
+          error={errors.name?.message}
         />
         <InputField
           label="Last Name"
-          name="surname"
           defaultValue={data?.surname}
-          register={register}
-          error={errors.surname}
+          {...register("surname")}
+          error={errors.surname?.message}
         />
         <InputField
           label="Phone"
-          name="phone"
           defaultValue={data?.phone}
-          register={register}
-          error={errors.phone}
+          {...register("phone")}
+          error={errors.phone?.message}
         />
         <InputField
           label="Address"
-          name="address"
           defaultValue={data?.address}
-          register={register}
-          error={errors.address}
+          {...register("address")}
+          error={errors.address?.message}
         />
         <InputField
           label="Blood Type"
-          name="bloodType"
           defaultValue={data?.bloodType}
-          register={register}
-          error={errors.bloodType}
+          {...register("bloodType")}
+          error={errors.bloodType?.message}
         />
         <InputField
           label="Birthday"
-          name="birthday"
-          defaultValue={data?.birthday?.toISOString?.().split("T")[0] || data?.birthday}
-          register={register}
-          error={errors.birthday}
+          defaultValue={data?.birthday?.toString().split("T")[0]}
+          {...register("birthday")}
+          error={errors.birthday?.message}
           type="date"
         />
         {data && (
           <InputField
-            label="Id"
-            name="id"
             defaultValue={data?.id}
-            register={register}
-            error={errors?.id}
+            {...register("id")}
+            error={errors?.id?.message}
             hidden
           />
         )}
@@ -159,7 +150,7 @@ const TeacherForm = ({
           </select>
           {errors.sex?.message && (
             <p className="text-xs text-red-400">
-              {errors.sex.message.toString()}
+              {errors.sex.message}
             </p>
           )}
         </div>
@@ -171,7 +162,7 @@ const TeacherForm = ({
             {...register("subjects")}
             defaultValue={data?.subjects}
           >
-            {subjects.map((subject: { id: number; name: string }) => (
+            {subjects?.map((subject: Subject) => (
               <option value={subject.id} key={subject.id}>
                 {subject.name}
               </option>
@@ -179,14 +170,14 @@ const TeacherForm = ({
           </select>
           {errors.subjects?.message && (
             <p className="text-xs text-red-400">
-              {errors.subjects.message.toString()}
+              {errors.subjects.message}
             </p>
           )}
         </div>
         <CldUploadWidget
           uploadPreset="school"
           onSuccess={(result, { widget }) => {
-            setImg(result.info);
+            setImg((result?.info as { secure_url: string }) || undefined);
             widget.close();
           }}
         >

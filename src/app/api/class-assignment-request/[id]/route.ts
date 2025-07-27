@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function PATCH(req: NextRequest, context: any) {
   const { action, classId } = await req.json();
-  const id = parseInt(params.id, 10);
+  const id = parseInt(context.params.id, 10);
   if (!id || !['approve', 'reject'].includes(action)) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }

@@ -1,18 +1,12 @@
 import TableSearch from "@/components/TableSearch";
 import React from "react";
-import Image from "next/image";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
-import Link from "next/link";
 import FormModal from "@/components/FormModal";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import prisma from "@/lib/prisma";
 import {
-  Class,
-  Lesson,
   Prisma,
-  Subject,
-  Teacher,
   Assignment,
 } from "@prisma/client";
 import { auth, currentUser } from "@clerk/nextjs/server";
@@ -159,10 +153,11 @@ const buildAssignmentQuery = (
 const AssignmentListPage = async ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined };
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) => {
   try {
-    const { page, ...queryParams } = searchParams;
+    const params = await searchParams;
+    const { page, ...queryParams } = params;
     const p = page ? parseInt(page) : 1;
 
     // Get user role and current user

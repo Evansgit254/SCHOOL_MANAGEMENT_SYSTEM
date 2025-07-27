@@ -26,7 +26,7 @@ const LoginPage = () => {
 
   return (
     <div className='h-screen flex items-center justify-center bg-lamaSkyLight'>
-      <SignIn.Root afterSignInUrl="/welcome">
+      <SignIn.Root>
         <SignIn.Step name='start' className='bg-white p-12 rounded-md shadow-2xl flex flex-col gap-2 '>
           <h1 className='text-xl font-bold flex items-center gap-2 '>
             <Image src='/logo.png' alt='' width={24} height={24} />

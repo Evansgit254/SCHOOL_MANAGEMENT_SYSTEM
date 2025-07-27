@@ -30,7 +30,9 @@ export default async function StudentPage() {
       <div className="w-full xl:w-2/3">
         <div className="h-full bg-white p-4 rounded-md">
           <h1 className="text-xl font-semibold">Schedule (4A)</h1>
-          {hasClass && classId ? (
+          {!userId ? (
+            <div className="text-red-500">You must be logged in to view this page.</div>
+          ) : hasClass && classId ? (
             <BigCalendarContainer type="classId" id={classId} />
           ) : (
             <div className="flex flex-col gap-4">

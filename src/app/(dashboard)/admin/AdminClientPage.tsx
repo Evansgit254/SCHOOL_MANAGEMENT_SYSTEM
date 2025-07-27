@@ -2,11 +2,12 @@
 import FinanceChart from '@/components/FinanceChart';
 import Table from '@/components/Table';
 import React, { useEffect, useState } from 'react';
+import type { Class, ClassAssignmentRequest } from '@/lib/types';
 
 const AdminClientPage = () => {
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<ClassAssignmentRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [classes, setClasses] = useState<any[]>([]);
+  const [classes, setClasses] = useState<Class[]>([]);
   const [selectedClass, setSelectedClass] = useState<{ [id: number]: number }>({});
 
   useEffect(() => {
@@ -47,7 +48,7 @@ const AdminClientPage = () => {
     { header: 'Actions', accessor: 'actions' },
   ];
 
-  const renderRow = (item: any) => (
+  const renderRow = (item: ClassAssignmentRequest) => (
     <tr key={item.id}>
       <td>{item.student?.name} {item.student?.surname}</td>
       <td>{new Date(item.createdAt).toLocaleString()}</td>
@@ -58,7 +59,7 @@ const AdminClientPage = () => {
           onChange={e => setSelectedClass(s => ({ ...s, [item.id]: Number(e.target.value) }))}
         >
           <option value="">Select class</option>
-          {classes.map((c: any) => (
+          {classes.map((c) => (
             <option value={c.id} key={c.id}>{c.name}</option>
           ))}
         </select>

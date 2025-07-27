@@ -6,12 +6,12 @@ import InputField from "../InputField";
 import {
   examSchema,
   ExamSchema,
-  subjectSchema,
-  SubjectSchema,
 } from "@/lib/formValidationSchemas";
 import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { RelatedData } from "../FormContainer";
+import { Lesson } from "@prisma/client";
 
 const ExamForm = ({
   type,
@@ -20,9 +20,9 @@ const ExamForm = ({
   relatedData,
 }: {
   type: "create" | "update";
-  data?: any;
+  data?: ExamSchema;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  relatedData?: any;
+  relatedData?: RelatedData;
 }) => {
   const {
     register,
@@ -34,7 +34,7 @@ const ExamForm = ({
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { lessons } = relatedData;
+  const { lessons } = relatedData || {};
 
   const onSubmit = async (formData: ExamSchema) => {
     setLoading(true);
@@ -53,8 +53,8 @@ const ExamForm = ({
       } else {
         toast.error("Something went wrong!");
       }
-    } catch (e) {
-      toast.error("Something went wrong!");
+    } catch (error) {
+      toast.error(`Something went wrong: ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }
@@ -69,34 +69,29 @@ const ExamForm = ({
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
           label="Exam title"
-          name="title"
           defaultValue={data?.title}
-          register={register}
-          error={errors?.title}
+          {...register("title")}
+          error={errors?.title?.message}
         />
         <InputField
           label="Start Date"
-          name="startTime"
-          defaultValue={data?.startTime}
-          register={register}
-          error={errors?.startTime}
+          defaultValue={data?.startTime ? new Date(data.startTime).toISOString().slice(0, 16) : undefined}
+          {...register("startTime")}
+          error={errors?.startTime?.message}
           type="datetime-local"
         />
         <InputField
           label="End Date"
-          name="endTime"
-          defaultValue={data?.endTime}
-          register={register}
-          error={errors?.endTime}
+          defaultValue={data?.endTime ? new Date(data.endTime).toISOString().slice(0, 16) : undefined}
+          {...register("endTime")}
+          error={errors?.endTime?.message}
           type="datetime-local"
         />
         {data && (
           <InputField
-            label="Id"
-            name="id"
             defaultValue={data?.id}
-            register={register}
-            error={errors?.id}
+            {...register("id")}
+            error={errors?.id?.message}
             hidden
           />
         )}
@@ -104,10 +99,10 @@ const ExamForm = ({
           <label className="text-xs text-gray-500">Lesson</label>
           <select
             className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("lessonId")}
+            {...register("lessonId", { valueAsNumber: true })}
             defaultValue={data?.lessonId}
           >
-            {lessons.map((lesson: { id: number; name: string }) => (
+            {lessons?.map((lesson: Lesson) => (
               <option value={lesson.id} key={lesson.id}>
                 {lesson.name}
               </option>
@@ -115,7 +110,7 @@ const ExamForm = ({
           </select>
           {errors.lessonId?.message && (
             <p className="text-xs text-red-400">
-              {errors.lessonId.message.toString()}
+              {errors.lessonId.message}
             </p>
           )}
         </div>

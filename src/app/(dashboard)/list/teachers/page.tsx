@@ -5,7 +5,7 @@ import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import Link from "next/link";
 import FormContainer from "@/components/FormContainer";
-import { Teacher, Subject, Class, Prisma } from "@prisma/client";
+import { Teacher, Prisma } from "@prisma/client";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import prisma from "@/lib/prisma";
 import { auth, currentUser } from "@clerk/nextjs/server";
@@ -196,10 +196,11 @@ const buildTeacherQuery = (
 const TeacherListPage = async ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined };
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) => {
   try {
-    const { page, ...queryParams } = searchParams;
+    const params = await searchParams;
+    const { page, ...queryParams } = params;
     const p = page ? parseInt(page) : 1;
 
     // Get user role and current user

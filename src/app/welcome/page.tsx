@@ -24,7 +24,7 @@ export default function WelcomePage() {
     return null;
   }
 
-  const role = user?.publicMetadata?.role || 'user';
+  const role = String(user?.publicMetadata?.role || 'user');
   const dashboardPath = `/${role}`;
 
   return (

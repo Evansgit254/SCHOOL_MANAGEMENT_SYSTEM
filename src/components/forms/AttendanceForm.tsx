@@ -1,16 +1,9 @@
 "use client";
-import { Dispatch, SetStateAction } from "react";
 
 const AttendanceForm = ({
   type,
-  data,
-  setOpen,
-  relatedData,
 }: {
   type: "create" | "update";
-  data?: any;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  relatedData?: any;
 }) => {
   return (
     <form className="flex flex-col gap-8">

@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     console.error('POST /api/classes error:', error);
-    return NextResponse.json({ error: 'Server error', details: error?.message || error }, { status: 500 });
+    return NextResponse.json({ error: 'Server error', details: (error as Error)?.message || error }, { status: 500 });
   }
 }
 
@@ -19,7 +19,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     console.error('PUT /api/classes error:', error);
-    return NextResponse.json({ error: 'Server error', details: error?.message || error }, { status: 500 });
+    return NextResponse.json({ error: 'Server error', details: (error as Error)?.message || error }, { status: 500 });
   }
 }
 
@@ -30,6 +30,6 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     console.error('DELETE /api/classes error:', error);
-    return NextResponse.json({ error: 'Server error', details: error?.message || error }, { status: 500 });
+    return NextResponse.json({ error: 'Server error', details: (error as Error)?.message || error }, { status: 500 });
   }
 } 

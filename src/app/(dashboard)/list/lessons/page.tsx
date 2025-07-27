@@ -4,10 +4,9 @@ import Image from 'next/image';
 import Pagination from '@/components/Pagination';
 import Table from '@/components/Table';
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import Link from 'next/link';
 import FormModal from '@/components/FormModal';
 import prisma from "@/lib/prisma";
-import { Class, Lesson, Prisma, Subject, Teacher } from "@prisma/client";
+import { Lesson, Prisma } from "@prisma/client";
 import { auth, currentUser } from "@clerk/nextjs/server";
 
 // Make the page dynamic
@@ -132,10 +131,11 @@ const buildLessonQuery = (
 const LessonListPage = async ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined };
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) => {
   try {
-    const { page, ...queryParams } = searchParams;
+    const params = await searchParams;
+    const { page, ...queryParams } = params;
     const p = page ? parseInt(page) : 1;
 
     // Get user role and current user

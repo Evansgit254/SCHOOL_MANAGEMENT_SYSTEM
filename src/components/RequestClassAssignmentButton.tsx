@@ -21,8 +21,8 @@ export default function RequestClassAssignmentButton({ studentId, pending }: { s
         const data = await res.json();
         toast.error(data.error || "Failed to send request");
       }
-    } catch (e) {
-      toast.error("Failed to send request");
+    } catch (error) {
+      toast.error(`Failed to send request: ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }

@@ -4,22 +4,22 @@ import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { Class, Exam, Prisma, Subject, Teacher } from "@prisma/client";
+import { Exam, Prisma } from "@prisma/client";
 import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
 
 type ExamList = Exam & {
   lesson: {
-    subject: Subject;
-    class: Class;
-    teacher: Teacher;
+    subject: { name: string };
+    class: { name: string };
+    teacher: { name: string; surname: string };
   };
 };
 
 const ExamListPage = async ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined };
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) => {
   const { userId, sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
@@ -80,7 +80,8 @@ const ExamListPage = async ({
     </tr>
   );
 
-  const { page, ...queryParams } = searchParams;
+      const params = await searchParams;
+    const { page, ...queryParams } = params;
 
   const p = page ? parseInt(page) : 1;
 

@@ -3,12 +3,9 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 import { FormContainerProps } from "./FormContainer";
-import * as Clerk from '@clerk/elements/common'
-import * as SignIn from '@clerk/elements/sign-in'
 
 // USE LAZY LOADING
 
@@ -64,98 +61,76 @@ const forms: {
   subject: (setOpen, type, data, relatedData) => (
     <SubjectForm
       type={type}
-      data={data}
+      data={data as import("@/lib/formValidationSchemas").SubjectSchema}
       setOpen={setOpen}
-      relatedData={relatedData}
+      relatedData={relatedData as import("./FormContainer").RelatedData}
     />
   ),
   class: (setOpen, type, data, relatedData) => (
     <ClassForm
       type={type}
-      data={data}
+      data={data as import("@/lib/formValidationSchemas").ClassSchema}
       setOpen={setOpen}
-      relatedData={relatedData}
+      relatedData={relatedData as import("./FormContainer").RelatedData}
     />
   ),
   teacher: (setOpen, type, data, relatedData) => (
     <TeacherForm
       type={type}
-      data={data}
+      data={data as import("@/lib/formValidationSchemas").TeacherSchema}
       setOpen={setOpen}
-      relatedData={relatedData}
+      relatedData={relatedData as import("./FormContainer").RelatedData}
     />
   ),
   student: (setOpen, type, data, relatedData) => (
     <StudentForm
       type={type}
-      data={data}
+      data={data as import("@/lib/formValidationSchemas").StudentSchema}
       setOpen={setOpen}
-      relatedData={relatedData}
+      relatedData={relatedData as import("./FormContainer").RelatedData}
     />
   ),
   exam: (setOpen, type, data, relatedData) => (
     <ExamForm
       type={type}
-      data={data}
+      data={data as import("@/lib/formValidationSchemas").ExamSchema}
       setOpen={setOpen}
-      relatedData={relatedData}
+      relatedData={relatedData as import("./FormContainer").RelatedData}
     />
-    // TODO OTHER LIST ITEMS
   ),
-  announcement: (setOpen, type, data, relatedData) => (
+  announcement: (setOpen, type) => (
     <AnnouncementForm
       type={type}
-      data={data}
-      setOpen={setOpen}
-      relatedData={relatedData}
     />
   ),
-  assignment: (setOpen, type, data, relatedData) => (
+  assignment: (setOpen, type) => (
     <AssignmentForm
       type={type}
-      data={data}
-      setOpen={setOpen}
-      relatedData={relatedData}
     />
   ),
-  attendance: (setOpen, type, data, relatedData) => (
+  attendance: (setOpen, type) => (
     <AttendanceForm
       type={type}
-      data={data}
-      setOpen={setOpen}
-      relatedData={relatedData}
     />
   ),
-  event: (setOpen, type, data, relatedData) => (
+  event: (setOpen, type) => (
     <EventForm
       type={type}
-      data={data}
-      setOpen={setOpen}
-      relatedData={relatedData}
     />
   ),
-  lesson: (setOpen, type, data, relatedData) => (
+  lesson: (setOpen, type) => (
     <LessonForm
       type={type}
-      data={data}
-      setOpen={setOpen}
-      relatedData={relatedData}
     />
   ),
-  parent: (setOpen, type, data, relatedData) => (
+  parent: (setOpen, type) => (
     <ParentForm
       type={type}
-      data={data}
-      setOpen={setOpen}
-      relatedData={relatedData}
     />
   ),
-  result: (setOpen, type, data, relatedData) => (
+  result: (setOpen, type) => (
     <ResultForm
       type={type}
-      data={data}
-      setOpen={setOpen}
-      relatedData={relatedData}
     />
   ),
 };
@@ -177,7 +152,7 @@ const FormModal = ({
 
   const [open, setOpen] = useState(false);
 
-  const handleDelete = async (table: string, id: string) => {
+  const handleDelete = async (table: string, id: string | number) => {
     try {
       const response = await fetch(`/api/${table}/${id}`, {
         method: 'DELETE',
@@ -190,19 +165,17 @@ const FormModal = ({
         toast.error(`Failed to delete ${table}. Please try again later.`);
       }
     } catch (error) {
-      toast.error(`An error occurred: ${error.message}`);
+      toast.error(`An error occurred: ${(error as Error).message}`);
     }
   };
 
   const Form = () => {
-    const router = useRouter();
-
     return type === "delete" && id ? (
       <form onSubmit={(e) => {
         e.preventDefault();
         handleDelete(table, id);
       }} className="p-4 flex flex-col gap-4">
-        <input type="text | number" name="id" value={id} hidden />
+        <input type="hidden" name="id" value={id} />
         <span className="text-center font-medium">
           All data will be lost. Are you sure you want to delete this {table}?
         </span>

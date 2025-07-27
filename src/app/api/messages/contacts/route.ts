@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
+import { ContactUser } from '@/lib/types';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const { userId, sessionClaims } = await auth();
     if (!userId) {
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'No role assigned' }, { status: 403 });
     }
 
-    let contacts: any[] = [];
+    let contacts: ContactUser[] = [];
 
     switch (role) {
       case 'admin':
@@ -57,9 +58,9 @@ export async function GET(req: NextRequest) {
         ]);
 
         contacts = [
-          ...teachers.map(t => ({ ...t, type: 'teacher', displayName: `${t.name} ${t.surname} (Teacher)` })),
-          ...students.map(s => ({ ...s, type: 'student', displayName: `${s.name} ${s.surname} (${s.class.name})` })),
-          ...parents.map(p => ({ ...p, type: 'parent', displayName: `${p.name} ${p.surname} (Parent)` })),
+          ...teachers.map(t => ({ ...t, type: 'teacher' as const, displayName: `${t.name} ${t.surname} (Teacher)` })),
+          ...students.map(s => ({ ...s, type: 'student' as const, displayName: `${s.name} ${s.surname} (${s.class.name})` })),
+          ...parents.map(p => ({ ...p, type: 'parent' as const, displayName: `${p.name} ${p.surname} (Parent)` })),
         ];
         break;
       case 'teacher': {
@@ -95,9 +96,9 @@ export async function GET(req: NextRequest) {
           }),
         ]);
         contacts = [
-          ...students.map(s => ({ ...s, type: 'student', displayName: `${s.name} ${s.surname} (${s.class.name})` })),
-          ...parents.map(p => ({ ...p, type: 'parent', displayName: `${p.name} ${p.surname} (Parent)` })),
-          ...teachers.map(t => ({ ...t, type: 'teacher', displayName: `${t.name} ${t.surname} (Teacher)` })),
+          ...students.map(s => ({ ...s, type: 'student' as const, displayName: `${s.name} ${s.surname} (${s.class.name})` })),
+          ...parents.map(p => ({ ...p, type: 'parent' as const, displayName: `${p.name} ${p.surname} (Parent)` })),
+          ...teachers.map(t => ({ ...t, type: 'teacher' as const, displayName: `${t.name} ${t.surname} (Teacher)` })),
         ];
         break;
       }
@@ -162,10 +163,12 @@ export async function GET(req: NextRequest) {
           });
 
           contacts = [
-            ...teachers.map(t => ({ ...t, type: 'teacher', displayName: `${t.name} ${t.surname} (Teacher)` })),
-            ...studentData.class.students.map(s => ({ ...s, type: 'student', displayName: `${s.name} ${s.surname} (Classmate)` })),
-            { ...studentData.parent, type: 'parent', displayName: `${studentData.parent.name} ${studentData.parent.surname} (Parent)` },
+            ...teachers.map(t => ({ ...t, type: 'teacher' as const, displayName: `${t.name} ${t.surname} (Teacher)` })),
+            ...studentData.class.students.map(s => ({ ...s, type: 'student' as const, displayName: `${s.name} ${s.surname} (Classmate)` })),
           ];
+          if(studentData.parent){
+            contacts.push({ ...studentData.parent, type: 'parent' as const, displayName: `${studentData.parent.name} ${studentData.parent.surname} (Parent)` })
+          }
         }
         break;
 
@@ -218,8 +221,8 @@ export async function GET(req: NextRequest) {
           });
 
           contacts = [
-            ...teachers.map(t => ({ ...t, type: 'teacher', displayName: `${t.name} ${t.surname} (Teacher)` })),
-            ...parentData.students.map(s => ({ ...s, type: 'student', displayName: `${s.name} ${s.surname} (Child)` })),
+            ...teachers.map(t => ({ ...t, type: 'teacher' as const, displayName: `${t.name} ${t.surname} (Teacher)` })),
+            ...parentData.students.map(s => ({ ...s, type: 'student' as const, displayName: `${s.name} ${s.surname} (Child)` })),
           ];
         }
         break;
@@ -231,6 +234,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ contacts });
   } catch (error) {
     console.error('GET /api/messages/contacts error:', error);
-    return NextResponse.json({ error: 'Server error', details: error?.message || error }, { status: 500 });
+    return NextResponse.json({ error: 'Server error', details: (error as Error)?.message || error }, { status: 500 });
   }
 } 

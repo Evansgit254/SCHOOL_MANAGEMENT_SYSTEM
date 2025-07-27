@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       prisma.parent.findUnique({ where: { id: userId } }),
     ]);
 
-    let user = admin || teacher || student || parent;
+    const user = admin || teacher || student || parent;
     
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -50,6 +50,6 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error('GET /api/user-info error:', error);
-    return NextResponse.json({ error: 'Server error', details: error?.message || error }, { status: 500 });
+    return NextResponse.json({ error: 'Server error', details: (error as Error)?.message || error }, { status: 500 });
   }
 } 

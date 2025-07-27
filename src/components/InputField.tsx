@@ -1,6 +1,11 @@
-import React from "react";
+import React, { InputHTMLAttributes } from "react";
 
-const InputField = React.forwardRef<HTMLInputElement, any>(
+interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
+    label?: string;
+    error?: string;
+}
+
+const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
   ({ label, error, ...props }, ref) => (
     <div className="flex flex-col gap-1">
       {label && <label className="text-sm font-medium">{label}</label>}
@@ -8,6 +13,8 @@ const InputField = React.forwardRef<HTMLInputElement, any>(
       {error && <span className="text-xs text-red-500">{error}</span>}
     </div>
   )
-  );
+);
+
+InputField.displayName = "InputField";
 
 export default InputField;

@@ -4,9 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import { subjectSchema, SubjectSchema } from "@/lib/formValidationSchemas";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { RelatedData } from "../FormContainer";
+import { Teacher } from "@prisma/client";
 
 const SubjectForm = ({
   type,
@@ -15,22 +17,21 @@ const SubjectForm = ({
   relatedData,
 }: {
   type: "create" | "update";
-  data?: any;
+  data?: SubjectSchema;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  relatedData?: any;
+  relatedData?: RelatedData;
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
   } = useForm<SubjectSchema>({
     resolver: zodResolver(subjectSchema),
   });
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { teachers } = relatedData;
+  const { teachers } = relatedData || {};
 
   const onSubmit = async (formData: SubjectSchema) => {
     setLoading(true);
@@ -49,8 +50,8 @@ const SubjectForm = ({
       } else {
         toast.error("Something went wrong!");
       }
-    } catch (e) {
-      toast.error("Something went wrong!");
+    } catch (error) {
+      toast.error(`Something went wrong: ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }
@@ -65,18 +66,15 @@ const SubjectForm = ({
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
           label="Subject name"
-          name="name"
           defaultValue={data?.name}
-          register={register}
-          error={errors?.name}
+          {...register("name")}
+          error={errors?.name?.message}
         />
         {data && (
           <InputField
-            label="Id"
-            name="id"
             defaultValue={data?.id}
-            register={register}
-            error={errors?.id}
+            {...register("id", { valueAsNumber: true })}
+            error={errors?.id?.message}
             hidden
           />
         )}
@@ -88,8 +86,8 @@ const SubjectForm = ({
             {...register("teachers")}
             defaultValue={data?.teachers}
           >
-            {teachers.map(
-              (teacher: { id: string; name: string; surname: string }) => (
+            {teachers?.map(
+              (teacher: Teacher) => (
                 <option value={teacher.id} key={teacher.id}>
                   {teacher.name + " " + teacher.surname}
                 </option>
@@ -98,7 +96,7 @@ const SubjectForm = ({
           </select>
           {errors.teachers?.message && (
             <p className="text-xs text-red-400">
-              {errors.teachers.message.toString()}
+              {errors.teachers.message}
             </p>
           )}
         </div>

@@ -2,16 +2,16 @@ import React from 'react'
 import Image from 'next/image'
 import prisma from '@/lib/prisma'
 
-const UserCard = async ({type}:{type:"admin" | "teacher" | "student" | "parent"}) => {
+type ModelName = "admin" | "teacher" | "student" | "parent";
 
-  const modelMap: Record<typeof type, any> = {
+const UserCard = async ({type}:{type: ModelName}) => {
+
+  const modelMap: Record<ModelName, { count: () => Promise<number> }> = {
     admin: prisma.admin,
     teacher: prisma.teacher,
     student: prisma.student,
     parent: prisma.parent
   };
-
-
 
   const data = await modelMap[type].count()
 
