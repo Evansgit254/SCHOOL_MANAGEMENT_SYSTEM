@@ -2,11 +2,12 @@ import TableSearch from '@/components/TableSearch'
 import React from 'react'
 import Pagination from '@/components/Pagination'
 import Table from '@/components/Table'
-import { role } from '@/lib/data'
 import FormModal from '@/components/FormModal'
 import { ITEM_PER_PAGE } from '@/lib/settings'
 import prisma from '@/lib/prisma'
 import { Prisma, Subject, Teacher } from '@prisma/client'
+import { auth, currentUser } from '@clerk/nextjs/server'
+import { getCurrentSchoolId } from '@/lib/tenant'
 
 type SubjectWithTeachers = Subject & {
   teachers: Teacher[];
@@ -28,7 +29,7 @@ const columns = [
   },
 ];
 
-const RenderRow = (item: SubjectWithTeachers) => (
+const RenderRow = (item: SubjectWithTeachers, role?: string) => (
   <tr key={item.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-50'>
     <td className='flex items-center gap-4 p-4'>{item.name}</td>
     <td className='hidden md:table-cell'>{item.teachers.map(teacher => teacher.name).join(", ")}</td>
@@ -50,9 +51,21 @@ const SubjectsListPage = async ({
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) => {
-      const params = await searchParams;
-    const { page, ...queryParams } = params;
+  const params = await searchParams;
+  const { page, ...queryParams } = params;
   const p = page ? parseInt(page) : 1;
+
+  const { userId, sessionClaims } = await auth();
+  const user = await currentUser();
+  const role = (sessionClaims?.metadata as { role?: string })?.role;
+
+  if (!userId || !user || !role) {
+    return (
+      <div className="bg-white p-4 rounded-lg flex-1 m-4 mt-0">
+        <p className="text-red-500">Please sign in to view subjects</p>
+      </div>
+    );
+  }
 
   const query: Prisma.SubjectWhereInput = {};
 
@@ -61,9 +74,10 @@ const SubjectsListPage = async ({
   }
 
   try {
+    const schoolId = await getCurrentSchoolId();
     const [data, count] = await prisma.$transaction([
       prisma.subject.findMany({
-        where: query,
+        where: schoolId ? { ...query, schoolId } : query,
         include: {
           teachers: true,
         },
@@ -73,7 +87,7 @@ const SubjectsListPage = async ({
           name: 'asc'
         }
       }),
-      prisma.subject.count({ where: query }),
+      prisma.subject.count({ where: schoolId ? { ...query, schoolId } : query }),
     ]);
 
     return (
@@ -91,7 +105,7 @@ const SubjectsListPage = async ({
         </div>
 
         <div className='mb-6'>
-          <Table columns={columns} renderRow={RenderRow} data={data}/>
+          <Table columns={columns} renderRow={(item) => RenderRow(item, role)} data={data}/>
         </div>
 
         <div>

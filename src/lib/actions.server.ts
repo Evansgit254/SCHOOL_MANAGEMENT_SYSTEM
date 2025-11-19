@@ -8,6 +8,9 @@ import {
   TeacherSchema,
 } from "./formValidationSchemas";
 import prisma from "./prisma";
+import { writeAuditLog } from "./audit";
+import { auth } from "@clerk/nextjs/server";
+import { getCurrentSchoolId } from "./tenant";
 import { clerkClient } from "@clerk/nextjs/server";
 
 type CurrentState = { success: boolean; error: boolean };
@@ -24,8 +27,11 @@ export const createSubject = async (
         teachers: {
           connect: data.teachers.map((teacherId) => ({ id: teacherId })),
         },
+        ...(await (async ()=>{ const sid = await getCurrentSchoolId(); return sid? { schoolId: sid } : {}; })()),
       },
     });
+    const { userId } = await auth();
+    if (userId) await writeAuditLog({ actorId: userId, action: 'create', entity: 'subject', entityId: data.name });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -48,6 +54,8 @@ export const updateSubject = async (
         },
       },
     });
+    const { userId } = await auth();
+    if (userId) await writeAuditLog({ actorId: userId, action: 'update', entity: 'subject', entityId: String(data.id) });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -65,6 +73,8 @@ export const deleteSubject = async (
         id: parseInt(id),
       },
     });
+    const { userId } = await auth();
+    if (userId) await writeAuditLog({ actorId: userId, action: 'delete', entity: 'subject', entityId: id });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -78,8 +88,13 @@ export const createClass = async (
 ) => {
   try {
     await prisma.class.create({
-      data,
+      data: {
+        ...data,
+        ...(await (async ()=>{ const sid = await getCurrentSchoolId(); return sid? { schoolId: sid } : {}; })()),
+      },
     });
+    const { userId } = await auth();
+    if (userId) await writeAuditLog({ actorId: userId, action: 'create', entity: 'class', entityId: data.name });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -97,6 +112,8 @@ export const updateClass = async (
       },
       data,
     });
+    const { userId } = await auth();
+    if (userId) await writeAuditLog({ actorId: userId, action: 'update', entity: 'class', entityId: String(data.id) });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -114,6 +131,8 @@ export const deleteClass = async (
         id: parseInt(id),
       },
     });
+    const { userId } = await auth();
+    if (userId) await writeAuditLog({ actorId: userId, action: 'delete', entity: 'class', entityId: id });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -153,8 +172,11 @@ export const createTeacher = async (
             id: parseInt(subjectId),
           })),
         },
+        ...(await (async ()=>{ const sid = await getCurrentSchoolId(); return sid? { schoolId: sid } : {}; })()),
       },
     });
+    const { userId: actor } = await auth();
+    if (actor) await writeAuditLog({ actorId: actor, action: 'create', entity: 'teacher', entityId: user.id });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -200,6 +222,8 @@ export const updateTeacher = async (
         },
       },
     });
+    const { userId: actor } = await auth();
+    if (actor) await writeAuditLog({ actorId: actor, action: 'update', entity: 'teacher', entityId: String(data.id) });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -220,6 +244,8 @@ export const deleteTeacher = async (
         id: id,
       },
     });
+    const { userId: actor } = await auth();
+    if (actor) await writeAuditLog({ actorId: actor, action: 'delete', entity: 'teacher', entityId: id });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -266,8 +292,11 @@ export const createStudent = async (
         gradeId: data.gradeId,
         classId: data.classId,
         parentId: data.parentId,
+        ...(await (async ()=>{ const sid = await getCurrentSchoolId(); return sid? { schoolId: sid } : {}; })()),
       },
     });
+    const { userId: actor } = await auth();
+    if (actor) await writeAuditLog({ actorId: actor, action: 'create', entity: 'student', entityId: user.id });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -311,6 +340,8 @@ export const updateStudent = async (
         parentId: data.parentId,
       },
     });
+    const { userId: actor } = await auth();
+    if (actor) await writeAuditLog({ actorId: actor, action: 'update', entity: 'student', entityId: String(data.id) });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -331,6 +362,8 @@ export const deleteStudent = async (
         id: id,
       },
     });
+    const { userId: actor } = await auth();
+    if (actor) await writeAuditLog({ actorId: actor, action: 'delete', entity: 'student', entityId: id });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -349,8 +382,11 @@ export const createExam = async (
         startTime: data.startTime,
         endTime: data.endTime,
         lessonId: data.lessonId,
+        ...(await (async ()=>{ const sid = await getCurrentSchoolId(); return sid? { schoolId: sid } : {}; })()),
       },
     });
+    const { userId } = await auth();
+    if (userId) await writeAuditLog({ actorId: userId, action: 'create', entity: 'exam', entityId: data.title });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -373,6 +409,8 @@ export const updateExam = async (
         lessonId: data.lessonId,
       },
     });
+    const { userId } = await auth();
+    if (userId) await writeAuditLog({ actorId: userId, action: 'update', entity: 'exam', entityId: String(data.id) });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };
@@ -390,6 +428,8 @@ export const deleteExam = async (
         id: parseInt(id),
       },
     });
+    const { userId } = await auth();
+    if (userId) await writeAuditLog({ actorId: userId, action: 'delete', entity: 'exam', entityId: id });
     return { success: true, error: false };
   } catch {
     return { success: false, error: true };

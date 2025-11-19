@@ -7,9 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Multi-tenant scaffold (School). Enable by setting MULTI_TENANT=true
+model School {
+  id        String   @id
+  name      String
+  createdAt DateTime @default(now())
+
+  admins    Admin[]
+  teachers  Teacher[]
+  students  Student[]
+  parents   Parent[]
+  classes   Class[]
+  subjects  Subject[]
+  lessons   Lesson[]
+  exams     Exam[]
+  assignments Assignment[]
+  events    Event[]
+  announcements Announcement[]
+}
+
 model Admin {
   id       String @id
   username String @unique
+
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
 }
 
 model Student {
@@ -34,6 +56,11 @@ model Student {
   results     Result[]
   birthday    DateTime
   classAssignmentRequests ClassAssignmentRequest[]
+
+  @@index([classId])
+
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
 }
 
 model Teacher {
@@ -52,6 +79,9 @@ model Teacher {
   lessons   Lesson[]
   classes   Class[]
   birthday  DateTime
+
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
 }
 
 model Parent {
@@ -64,6 +94,9 @@ model Parent {
   address   String
   createdAt DateTime  @default(now())
   students  Student[]
+
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
 }
 
 model Grade {
@@ -87,6 +120,9 @@ model Class {
   grade         Grade          @relation(fields: [gradeId], references: [id])
   events        Event[]
   announcements Announcement[]
+
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
 }
 
 model Subject {
@@ -94,6 +130,9 @@ model Subject {
   name     String    @unique
   teachers Teacher[]
   lessons  Lesson[]
+
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
 }
 
 model Lesson {
@@ -112,6 +151,11 @@ model Lesson {
   exams       Exam[]
   assignments Assignment[]
   attendances Attendance[]
+
+  @@index([teacherId, classId, day])
+
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
 }
 
 model Exam {
@@ -123,6 +167,9 @@ model Exam {
   lessonId Int
   lesson   Lesson   @relation(fields: [lessonId], references: [id])
   results  Result[]
+
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
 }
 
 model Assignment {
@@ -134,6 +181,9 @@ model Assignment {
   lessonId Int
   lesson   Lesson   @relation(fields: [lessonId], references: [id])
   results  Result[]
+
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
 }
 
 model Result {
@@ -146,6 +196,8 @@ model Result {
   assignment   Assignment? @relation(fields: [assignmentId], references: [id])
   studentId    String
   student      Student     @relation(fields: [studentId], references: [id])
+
+  @@index([studentId])
 }
 
 model Attendance {
@@ -168,6 +220,11 @@ model Event {
 
   classId Int?
   class   Class? @relation(fields: [classId], references: [id])
+
+  @@index([classId])
+
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
 }
 
 model Announcement {
@@ -178,6 +235,9 @@ model Announcement {
 
   classId Int?
   class   Class? @relation(fields: [classId], references: [id])
+
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
 }
 
 model ClassAssignmentRequest {
@@ -195,6 +255,21 @@ model Message {
   content    String
   timestamp  DateTime @default(now())
   read       Boolean  @default(false)
+
+  @@index([senderId, receiverId, timestamp])
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  actorId   String
+  action    String
+  entity    String
+  entityId  String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([actorId, createdAt])
 }
 
 enum UserSex {

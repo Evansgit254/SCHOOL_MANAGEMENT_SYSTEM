@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
+import { initSentry, captureError } from '@/lib/telemetry';
+initSentry();
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
+import { getCurrentSchoolId } from '@/lib/tenant';
 import { ContactUser } from '@/lib/types';
 
 export async function GET() {
@@ -19,6 +22,7 @@ export async function GET() {
 
     let contacts: ContactUser[] = [];
 
+    const schoolId = await getCurrentSchoolId();
     switch (role) {
       case 'admin':
         // Admin can message all users
@@ -32,6 +36,7 @@ export async function GET() {
               img: true,
             },
             orderBy: { name: 'asc' },
+            where: schoolId ? { schoolId } : undefined,
           }),
           prisma.student.findMany({
             select: {
@@ -45,6 +50,7 @@ export async function GET() {
               },
             },
             orderBy: { name: 'asc' },
+            where: schoolId ? { schoolId } : undefined,
           }),
           prisma.parent.findMany({
             select: {
@@ -54,6 +60,7 @@ export async function GET() {
               surname: true,
             },
             orderBy: { name: 'asc' },
+            where: schoolId ? { schoolId } : undefined,
           }),
         ]);
 
@@ -152,7 +159,7 @@ export async function GET() {
           });
 
           const teachers = await prisma.teacher.findMany({
-            where: { id: { in: Array.from(teacherIds) } },
+            where: { id: { in: Array.from(teacherIds) }, ...(schoolId ? { schoolId } : {}) },
             select: {
               id: true,
               username: true,
@@ -210,7 +217,7 @@ export async function GET() {
           });
 
           const teachers = await prisma.teacher.findMany({
-            where: { id: { in: Array.from(teacherIds) } },
+            where: { id: { in: Array.from(teacherIds) }, ...(schoolId ? { schoolId } : {}) },
             select: {
               id: true,
               username: true,
@@ -231,9 +238,12 @@ export async function GET() {
         return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
     }
 
-    return NextResponse.json({ contacts });
+    return NextResponse.json(
+      { contacts },
+      { headers: { 'Cache-Control': 'private, max-age=30' } }
+    );
   } catch (error) {
-    console.error('GET /api/messages/contacts error:', error);
+    captureError(error, { route: 'GET /api/messages/contacts' });
     return NextResponse.json({ error: 'Server error', details: (error as Error)?.message || error }, { status: 500 });
   }
 } 

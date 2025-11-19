@@ -38,8 +38,8 @@ export default clerkMiddleware(async (auth, req) => {
   // Check role-based access
   for (const { matcher, allowedRoles } of matchers) {
     if (matcher(req) && !allowedRoles.includes(role)) {
-      // Redirect to their role-specific dashboard
-      return NextResponse.redirect(new URL(`/dashboard/${role}`, req.url));
+      // Redirect to their role-specific dashboard route
+      return NextResponse.redirect(new URL(`/${role}`, req.url));
     }
   }
 

@@ -9,6 +9,7 @@ import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Prisma, Student } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { auth, currentUser } from '@clerk/nextjs/server';
+import { getCurrentSchoolId } from '@/lib/tenant';
 import FormContainer from "@/components/FormContainer";
 
 // Make the page dynamic
@@ -201,9 +202,10 @@ const StudentListPage = async ({
     const query = buildStudentQuery(role, userId, metadata, queryParams);
     const columns = getColumns(role);
 
+    const schoolId = await getCurrentSchoolId();
     const [data, count] = await prisma.$transaction([
       prisma.student.findMany({
-        where: query,
+        where: schoolId ? { ...query, schoolId } : query,
         include: {
           class: {
             select: {
@@ -215,7 +217,7 @@ const StudentListPage = async ({
         take: ITEM_PER_PAGE,
         skip: ITEM_PER_PAGE * (p - 1),
       }),
-      prisma.student.count({ where: query }),
+      prisma.student.count({ where: schoolId ? { ...query, schoolId } : query }),
     ]);
 
     if (!data || data.length === 0) {

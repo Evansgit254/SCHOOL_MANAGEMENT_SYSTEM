@@ -161,7 +161,7 @@ const LessonListPage = async ({
     }
 
     const query = buildLessonQuery(role, userId, metadata, queryParams);
-    if (role === "teacher") {
+    if (role === "teacher" && process.env.NODE_ENV === "development") {
       console.log("[Lessons] Teacher Query:", JSON.stringify(query, null, 2));
     }
     const columns = getColumns(role);
@@ -179,7 +179,7 @@ const LessonListPage = async ({
       }),
       prisma.lesson.count({ where: query }),
     ]);
-    if (role === "teacher") {
+    if (role === "teacher" && process.env.NODE_ENV === "development") {
       console.log(`[Lessons] Teacher Data Count: ${data.length}`);
     }
 

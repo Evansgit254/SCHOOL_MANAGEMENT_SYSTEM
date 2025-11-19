@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
+import { getClientIp, rateLimitConsumeAsync } from '@/lib/rateLimit';
+import { initSentry, captureError } from '@/lib/telemetry';
+import { getCurrentSchoolId } from '@/lib/tenant';
+initSentry();
+import { z } from 'zod';
 
 // Send a message
 export async function POST(req: NextRequest) {
@@ -9,8 +14,19 @@ export async function POST(req: NextRequest) {
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const ip = getClientIp(req);
+    const key = `messages:POST:${userId || ip}`;
+    const rl = await rateLimitConsumeAsync(key, { tokensPerInterval: 30, intervalMs: 60_000 });
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Too Many Requests' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.resetMs / 1000)) } });
+    }
 
-    const { senderId, receiverId, content } = await req.json();
+    const schema = z.object({
+      senderId: z.string().min(1),
+      receiverId: z.string().min(1),
+      content: z.string().min(1).max(1000),
+    });
+    const { senderId, receiverId, content } = schema.parse(await req.json());
     
     // Validate input
     if (!senderId || !receiverId || !content) {
@@ -23,20 +39,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate content length
-    if (content.trim().length === 0) {
-      return NextResponse.json({ error: 'Message cannot be empty' }, { status: 400 });
-    }
-
-    if (content.length > 1000) {
-      return NextResponse.json({ error: 'Message too long (max 1000 characters)' }, { status: 400 });
-    }
+    // Length validated by schema
 
     // Verify receiver exists
+    const schoolId = await getCurrentSchoolId();
     const receiver = await prisma.$transaction([
-      prisma.admin.findUnique({ where: { id: receiverId } }),
-      prisma.teacher.findUnique({ where: { id: receiverId } }),
-      prisma.student.findUnique({ where: { id: receiverId } }),
-      prisma.parent.findUnique({ where: { id: receiverId } }),
+      prisma.admin.findUnique({ where: { id: receiverId, ...(schoolId ? { schoolId } : {}) } }),
+      prisma.teacher.findUnique({ where: { id: receiverId, ...(schoolId ? { schoolId } : {}) } }),
+      prisma.student.findUnique({ where: { id: receiverId, ...(schoolId ? { schoolId } : {}) } }),
+      prisma.parent.findUnique({ where: { id: receiverId, ...(schoolId ? { schoolId } : {}) } }),
     ]);
 
     const receiverExists = receiver.some(user => user !== null);
@@ -50,7 +61,7 @@ export async function POST(req: NextRequest) {
     
     return NextResponse.json({ success: true, message });
   } catch (error) {
-    console.error('POST /api/messages error:', error);
+    captureError(error, { route: 'POST /api/messages' });
     return NextResponse.json({ error: 'Server error', details: (error as Error)?.message || error }, { status: 500 });
   }
 }
@@ -82,9 +93,12 @@ export async function GET(req: NextRequest) {
       take: 100, // Limit to prevent performance issues
     });
     
-    return NextResponse.json({ messages });
+    return NextResponse.json(
+      { messages },
+      { headers: { 'Cache-Control': 'private, max-age=15' } }
+    );
   } catch (error) {
-    console.error('GET /api/messages error:', error);
+    captureError(error, { route: 'GET /api/messages' });
     return NextResponse.json({ error: 'Server error', details: (error as Error)?.message || error }, { status: 500 });
   }
 } 

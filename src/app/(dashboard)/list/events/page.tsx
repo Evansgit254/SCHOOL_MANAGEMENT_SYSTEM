@@ -5,6 +5,7 @@ import Table from '@/components/Table'
 import FormModal from '@/components/FormModal'
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import prisma from "@/lib/prisma";
+import { getCurrentSchoolId } from "@/lib/tenant";
 import { Prisma } from "@prisma/client";
 import { Event, Class } from '@prisma/client'
 import { auth, currentUser } from '@clerk/nextjs/server'
@@ -156,25 +157,21 @@ const EventListPage = async ({
     }
 
     const query = buildEventQuery(role, userId, queryParams);
-    if (role === "teacher") {
-      console.log("[Events] Teacher Query:", JSON.stringify(query, null, 2));
-    }
     const columns = getColumns(role);
 
+    const schoolId = await getCurrentSchoolId();
     const [data, count] = await prisma.$transaction([
       prisma.event.findMany({
-        where: query,
+        where: schoolId ? { ...query, schoolId } : query,
         include: {
           class: true,
         },
         take: ITEM_PER_PAGE,
         skip: ITEM_PER_PAGE * (p - 1),
       }),
-      prisma.event.count({where: query}),
+      prisma.event.count({where: schoolId ? { ...query, schoolId } : query}),
     ]);
-    if (role === "teacher") {
-      console.log(`[Events] Teacher Data Count: ${data.length}`);
-    }
+    
 
     if (!data || data.length === 0) {
       return (
@@ -213,7 +210,6 @@ const EventListPage = async ({
       </div>
     );
   } catch (error) {
-    console.error("Error in EventListPage:", error);
     return (
       <div className="flex justify-center items-center h-full">
         <p className="text-red-500">An error occurred while loading events</p>

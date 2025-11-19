@@ -154,8 +154,10 @@ const FormModal = ({
 
   const handleDelete = async (table: string, id: string | number) => {
     try {
-      const response = await fetch(`/api/${table}/${id}`, {
+      const response = await fetch(`/api/${table}` , {
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
       });
 
       if (response.ok) {

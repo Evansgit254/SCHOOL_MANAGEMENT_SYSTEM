@@ -51,7 +51,6 @@ const BigCalendarContainer = async ({ type, id }: BigCalendarContainerProps) => 
       </div>
     );
   } catch (error) {
-    console.error("Error fetching calendar data:", error);
     return (
       <div className="w-full h-full flex items-center justify-center">
         <p className="text-red-500">Error loading calendar data</p>

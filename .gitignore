@@ -42,3 +42,13 @@ next-env.d.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# Large binary files
+*.deb
+*.rpm
+*.dmg
+*.exe
+*.msi
+*.zip
+*.tar.gz
+*.rar

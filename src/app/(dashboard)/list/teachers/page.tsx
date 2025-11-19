@@ -8,6 +8,7 @@ import FormContainer from "@/components/FormContainer";
 import { Teacher, Prisma } from "@prisma/client";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import prisma from "@/lib/prisma";
+import { getCurrentSchoolId } from "@/lib/tenant";
 import { auth, currentUser } from "@clerk/nextjs/server";
 
 // Make the page dynamic
@@ -226,9 +227,8 @@ const TeacherListPage = async ({
     }
 
     const query = buildTeacherQuery(role, userId, metadata, queryParams);
-    if (role === "teacher") {
-      console.log("[Teachers] Teacher Query:", JSON.stringify(query, null, 2));
-    }
+    const schoolId = await getCurrentSchoolId();
+    if (schoolId) (query as any).schoolId = schoolId;
     const columns = getColumns(role);
 
     const [data, count] = await prisma.$transaction([
@@ -253,9 +253,7 @@ const TeacherListPage = async ({
       }),
       prisma.teacher.count({ where: query }),
     ]);
-    if (role === "teacher") {
-      console.log(`[Teachers] Teacher Data Count: ${data.length}`);
-    }
+    
 
     if (!data || data.length === 0) {
       return (
@@ -304,7 +302,6 @@ const TeacherListPage = async ({
       </div>
     );
   } catch (error) {
-    console.error("Error in TeacherListPage:", error);
     return (
       <div className="flex justify-center items-center h-full">
         <p className="text-red-500">An error occurred while loading teachers</p>

@@ -2,6 +2,10 @@ import { Day, PrismaClient, UserSex } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
+  if (process.env.MULTI_TENANT === 'true') {
+    await prisma.school.upsert({ where: { id: 'school-a' }, update: {}, create: { id: 'school-a', name: 'School A' } });
+    await prisma.school.upsert({ where: { id: 'school-b' }, update: {}, create: { id: 'school-b', name: 'School B' } });
+  }
   // ADMIN
   await prisma.admin.create({
     data: {

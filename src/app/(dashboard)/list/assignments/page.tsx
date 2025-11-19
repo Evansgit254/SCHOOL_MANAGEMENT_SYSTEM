@@ -189,7 +189,7 @@ const AssignmentListPage = async ({
         : columns;
 
     const query = buildAssignmentQuery(role, userId, metadata, queryParams);
-    if (role === "teacher") {
+    if (role === "teacher" && process.env.NODE_ENV === "development") {
       console.log("[Assignments] Teacher Query:", JSON.stringify(query, null, 2));
     }
     const [data, count] = await prisma.$transaction([
@@ -209,7 +209,7 @@ const AssignmentListPage = async ({
       }),
       prisma.assignment.count({ where: query }),
     ]);
-    if (role === "teacher") {
+    if (role === "teacher" && process.env.NODE_ENV === "development") {
       console.log(`[Assignments] Teacher Data Count: ${data.length}`);
     }
 

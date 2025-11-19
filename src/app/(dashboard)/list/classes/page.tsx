@@ -8,6 +8,7 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { Class, Teacher } from "@prisma/client";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { getCurrentSchoolId } from '@/lib/tenant';
 
 // Make the page dynamic
 export const dynamic = "force-dynamic";
@@ -136,16 +137,17 @@ const ClassListPage = async ({
 
     const query = buildClassQuery(queryParams);
 
+    const schoolId = await getCurrentSchoolId();
     const [data, count] = await prisma.$transaction([
       prisma.class.findMany({
-        where: query,
+        where: schoolId ? { ...query, schoolId } : query,
         include: {
           supervisor: true,
         },
         take: ITEM_PER_PAGE,
         skip: ITEM_PER_PAGE * (p - 1),
       }),
-      prisma.class.count({ where: query }),
+      prisma.class.count({ where: schoolId ? { ...query, schoolId } : query }),
     ]);
 
     if (!data || data.length === 0) {

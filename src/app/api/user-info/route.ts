@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { initSentry, captureError } from '@/lib/telemetry';
+initSentry();
 
 export async function GET(req: NextRequest) {
   try {
@@ -47,9 +49,9 @@ export async function GET(req: NextRequest) {
       img: 'img' in user ? user.img : '',
       type: userType,
       displayName: displayName,
-    });
+    }, { headers: { 'Cache-Control': 'private, max-age=60' } });
   } catch (error) {
-    console.error('GET /api/user-info error:', error);
+    captureError(error, { route: 'GET /api/user-info' });
     return NextResponse.json({ error: 'Server error', details: (error as Error)?.message || error }, { status: 500 });
   }
 } 

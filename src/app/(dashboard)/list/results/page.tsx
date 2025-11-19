@@ -6,6 +6,7 @@ import Table from '@/components/Table'
 import FormModal from '@/components/FormModal'
 import { ITEM_PER_PAGE } from '@/lib/settings'
 import prisma from '@/lib/prisma'
+import { getCurrentSchoolId } from '@/lib/tenant'
 import { Prisma } from '@prisma/client'
 import { auth, currentUser } from '@clerk/nextjs/server'
 
@@ -191,9 +192,6 @@ const ResultListPage = async ({
     }
 
     const query = buildResultQuery(role, userId, metadata, queryParams);
-    if (role === "teacher") {
-      console.log("[Results] Teacher Query:", JSON.stringify(query, null, 2));
-    }
     const columns = getColumns(role);
 
     const [dataRes, count] = await prisma.$transaction([
@@ -229,9 +227,7 @@ const ResultListPage = async ({
       }),
       prisma.result.count({ where: query }),
     ]);
-    if (role === "teacher") {
-      console.log(`[Results] Teacher Data Count: ${dataRes.length}`);
-    }
+    
 
     const data = dataRes.map(item => {
       const assessment = item.assignment || item.exam;
@@ -299,7 +295,6 @@ const ResultListPage = async ({
       </div>
     );
   } catch (error) {
-    console.error("Error in ResultListPage:", error);
     return (
       <div className="flex justify-center items-center h-full">
         <p className="text-red-500">An error occurred while loading results</p>

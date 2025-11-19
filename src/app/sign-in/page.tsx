@@ -10,7 +10,6 @@ const LoginPage = () => {
   const { isSignedIn, isLoaded } = useUser();
 
   useEffect(() => {
-    console.log('Sign-in page: isLoaded:', isLoaded, 'isSignedIn:', isSignedIn);
     if (isLoaded && isSignedIn) {
       window.location.replace('/api/role-redirect');
     }
